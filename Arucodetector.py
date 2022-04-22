@@ -75,6 +75,7 @@ class Arucodetector:
             retry -= 1
             try:
                 self.container = av.open(self.GetDrone().get_video_stream())
+                self.SetStreamingStatus(True)
             except av.AVError as ave:
                 print(ave)
                 print('retry...')
