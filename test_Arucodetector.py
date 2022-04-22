@@ -8,7 +8,7 @@ class TestArucodetector(unittest.TestCase):
     def setUp(self):
         self.testdetector = Arucodetector()
         self.testdetector.Setup()
-        self.testdetector.ConnectDrone(tellopy.Tello())
+        self.testdetector.ConnectDrone()
 
     def tearDown(self):
         self.testdetector.End()
@@ -27,10 +27,10 @@ class TestArucodetector(unittest.TestCase):
 
     def test_StopDrones(self):
         self.testdetector.End()
-        self.assertFalse(self.testdetector.isstreaming)
-        self.assertFalse(self.testdetector.isconnected)
-        self.assertIsNone(self.testdetector.cameraMatrix)
-        self.assertIsNone(self.testdetector.distCoeffs)
+        self.assertFalse(self.testdetector.IsDroneConnected())
+        self.assertFalse(self.testdetector.IsDroneStreaming())
+        # self.assertIsNone(self.testdetector.GetCameraMatrix())
+        # self.assertIsNone(self.testdetector.GetDistortionCoefficients())
 
 #     def test_GetImageFromStream(self):
 #         self.testdetector.Run()
