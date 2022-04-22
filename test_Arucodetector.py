@@ -25,12 +25,12 @@ class TestArucodetector(unittest.TestCase):
         self.assertTrue(self.testdetector.IsDroneStreaming())
 
 
-#     def test_StopDrones(self):
-#         self.testdetector.End()
-#         self.assertFalse(self.testdetector.isstreaming)
-#         self.assertFalse(self.testdetector.isconnected)
-#         self.assertIsNone(self.testdetector.cameraMatrix)
-#         self.assertIsNone(self.testdetector.distCoeffs)
+    def test_StopDrones(self):
+        self.testdetector.End()
+        self.assertFalse(self.testdetector.isstreaming)
+        self.assertFalse(self.testdetector.isconnected)
+        self.assertIsNone(self.testdetector.cameraMatrix)
+        self.assertIsNone(self.testdetector.distCoeffs)
 
 #     def test_GetImageFromStream(self):
 #         self.testdetector.Run()
