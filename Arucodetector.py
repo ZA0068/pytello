@@ -43,11 +43,9 @@ class Arucodetector:
     def SetMarkerSize(self, markerSize) -> None:
         self.marker_size = markerSize;
 
-    def SetDrone(self, drone=None) -> None:
-        if drone is None:
+    def SetDrone(self) -> None:
+        if self.drone is None:
             self.drone = tellopy.Tello()
-        else:
-            self.drone = drone
 
     def SetConnectionStatus(self, status) -> None:
         self.is_drone_connected = status
@@ -55,9 +53,9 @@ class Arucodetector:
     def SetStreamingStatus(self, status) -> None:
         self.is_drone_streaming = status
 
-    def ConnectDrone(self, drone=None) -> None:
+    def ConnectDrone(self) -> None:
         try:
-            self.SetDrone(drone)
+            self.SetDrone()
             self.GetDrone().connect()
             self.GetDrone().wait_for_connection(60.0)
             self.SetContainer(3)
@@ -65,10 +63,6 @@ class Arucodetector:
         except Exception as ex:
             self.Exception(ex)
 
-    def Exception(self, ex):
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        traceback.print_exception(exc_type, exc_value, exc_traceback)
-        print(ex)
 
     def SetContainer(self, retry) -> None:
         while self.container is None and 0 < retry:
@@ -143,6 +137,11 @@ class Arucodetector:
 
 # Others
 
+    def Exception(self, ex):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        print(ex)
+
     def LoadFile(self, filename):
         return np.loadtxt(filename, delimiter=',')
 
@@ -187,6 +186,13 @@ class Arucodetector:
             return
 
     def End(self) -> None:
+        self.DisconnectDrone()
+        self.StopStream()
+
+    def StopStream(self):
         self.GetContainer().close()
+        self.SetStreamingStatus(False)
+
+    def DisconnectDrone(self):
         self.GetDrone().quit()
         self.SetConnectionStatus(False)
