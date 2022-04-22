@@ -186,6 +186,7 @@ class Arucodetector:
             return
 
     def End(self) -> None:
+        self.DeleteCameraCalibration()
         self.DisconnectDrone()
         self.StopStream()
 
@@ -194,7 +195,7 @@ class Arucodetector:
             self.GetContainer().close()
         self.SetStreamingStatus(False)
 
-    def ResetCameraCalibration(self):
+    def DeleteCameraCalibration(self):
         self.SetCameraMatrix(None)
         self.SetDistortionCoefficients(None)
 
