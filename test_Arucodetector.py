@@ -11,7 +11,7 @@ class TestArucodetector(unittest.TestCase):
         self.testdetector.ConnectDrone(tellopy.Tello())
 
     def tearDown(self):
-        self.testdetector.Ed()
+        self.testdetector.End()
         print('Testing are done.')
 
     def test_SetDrone(self):
