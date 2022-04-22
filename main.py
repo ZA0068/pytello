@@ -26,21 +26,21 @@ def main():
 
         # skip first 300 frames
         frame_skip = 300
-        while True:
-            for frame in container.decode(video=0):
-                if 0 < frame_skip:
-                    frame_skip = frame_skip - 1
-                    continue
-                start_time = time.time()
-                image = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
-                cv2.imshow('Original', image)
-                cv2.imshow('Canny', cv2.Canny(image, 100, 200))
-                cv2.waitKey(1)
-                if frame.time_base < 1.0/60:
-                    time_base = 1.0/60
-                else:
-                    time_base = frame.time_base
-                frame_skip = int((time.time() - start_time)/time_base)
+        for frame in container.decode(video=0):
+            if 0 < frame_skip:
+                frame_skip = frame_skip - 1
+                continue
+            start_time = time.time()
+            image = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
+            cv2.imshow('Original', image)
+            cv2.imshow('Canny', cv2.Canny(image, 100, 200))
+            if 27 == cv2.waitKey(1):
+                break
+            if frame.time_base < 1.0/60:
+                time_base = 1.0/60
+            else:
+                time_base = frame.time_base
+            frame_skip = int((time.time() - start_time)/time_base)           
                     
 
     except Exception as ex:

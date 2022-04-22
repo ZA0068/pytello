@@ -17,7 +17,7 @@ class Arucodetector:
         self.is_drone_connected: bool = False
         self.is_drone_streaming: bool = False
         self.drone: tellopy.Tello = None
-        self.container: av.Container = None
+        self.container: av.container = None
         self.RotationMatrix: np.array = None
         self.marker_length: int = 0
         self.font: int = 0
@@ -43,9 +43,8 @@ class Arucodetector:
     def SetMarkerSize(self, markerSize) -> None:
         self.marker_size = markerSize;
 
-    def SetDrone(self) -> None:
-        if self.drone is None:
-            self.drone = tellopy.Tello()
+    def SetDrone(self, drone) -> None:
+        self.drone = drone
 
     def SetConnectionStatus(self, status) -> None:
         self.is_drone_connected = status
@@ -55,7 +54,7 @@ class Arucodetector:
 
     def ConnectDrone(self) -> None:
         try:
-            self.SetDrone()
+            self.SetDrone(tellopy.Tello())
             self.GetDrone().connect()
             self.GetDrone().wait_for_connection(60.0)
             self.SetContainer(3)
@@ -187,11 +186,11 @@ class Arucodetector:
 
     def End(self) -> None:
         self.DeleteCameraCalibration()
-        self.DisconnectDrone()
         self.StopStream()
+        self.DisconnectDrone()
 
     def StopStream(self) -> None:
-        if self.IsDroneStreaming(()):
+        if self.IsDroneStreaming():
             self.GetContainer().close()
         self.SetStreamingStatus(False)
 
@@ -202,4 +201,5 @@ class Arucodetector:
     def DisconnectDrone(self) -> None:
         if self.IsDroneConnected():
             self.GetDrone().quit()
+            self.SetDrone(None)
             self.SetConnectionStatus(False)
