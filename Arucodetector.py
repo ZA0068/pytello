@@ -85,15 +85,15 @@ class Arucodetector:
         RotationMatrix[2,2] = -1.0
         self.rotation_matrix = RotationMatrix
 
-    def SetDistortionCoefficients(self) -> None:
-        self.distCoeffs = self.LoadFile('cameraDistortion.txt')
+    def SetDistortionCoefficients(self, array) -> None:
+        self.distCoeffs = array
 
-    def SetCameraMatrix(self) -> None:
-        self.cameraMatrix = self.LoadFile('cameraMatrix.txt')
+    def SetCameraMatrix(self, array) -> None:
+        self.cameraMatrix = array
 
     def SetCameraCalibrations(self) -> None:
-        self.SetCameraMatrix()
-        self.SetDistortionCoefficients()
+        self.SetCameraMatrix(self.LoadFile('cameraMatrix.txt'))
+        self.SetDistortionCoefficients(self.LoadFile('cameraDistortion.txt'))
 
 # Getters
 
@@ -193,6 +193,10 @@ class Arucodetector:
         if self.IsDroneStreaming():
             self.GetContainer().close()
         self.SetStreamingStatus(False)
+
+    def ResetCameraCalibration(self):
+        self.SetCameraMatrix(None)
+        self.SetDistortionCoefficients(None)
 
     def DisconnectDrone(self) -> None:
         if self.IsDroneConnected():
