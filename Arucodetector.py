@@ -191,7 +191,7 @@ class Arucodetector:
         self.StopStream()
 
     def StopStream(self) -> None:
-        if self.IsDroneStreaming():
+        if self.IsDroneStreaming(()):
             self.GetContainer().close()
         self.SetStreamingStatus(False)
 
