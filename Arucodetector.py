@@ -189,10 +189,12 @@ class Arucodetector:
         self.DisconnectDrone()
         self.StopStream()
 
-    def StopStream(self):
-        self.GetContainer().close()
+    def StopStream(self) -> None:
+        if self.IsDroneStreaming():
+            self.GetContainer().close()
         self.SetStreamingStatus(False)
 
-    def DisconnectDrone(self):
-        self.GetDrone().quit()
-        self.SetConnectionStatus(False)
+    def DisconnectDrone(self) -> None:
+        if self.IsDroneConnected():
+            self.GetDrone().quit()
+            self.SetConnectionStatus(False)

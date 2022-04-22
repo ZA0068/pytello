@@ -29,8 +29,8 @@ class TestArucodetector(unittest.TestCase):
         self.testdetector.End()
         self.assertFalse(self.testdetector.IsDroneConnected())
         self.assertFalse(self.testdetector.IsDroneStreaming())
-        # self.assertIsNone(self.testdetector.GetCameraMatrix())
-        # self.assertIsNone(self.testdetector.GetDistortionCoefficients())
+        self.assertIsNone(self.testdetector.GetCameraMatrix())
+        self.assertIsNone(self.testdetector.GetDistortionCoefficients())
 
 #     def test_GetImageFromStream(self):
 #         self.testdetector.Run()
