@@ -17,12 +17,12 @@ class TestArucodetector(unittest.TestCase):
     def test_SetDrone(self):
         self.assertTrue(self.testdetector.IsDroneConnected())
 
-#     def test_SetCameraCalibration(self):
-#         self.assertIsNotNone(self.testdetector.cameraMatrix)
-#         self.assertIsNotNone(self.testdetector.distCoeffs)
+    def test_SetCameraCalibration(self):
+        self.assertIsNotNone(self.testdetector.cameraMatrix)
+        self.assertIsNotNone(self.testdetector.distCoeffs)
 
-#     def test_stream(self):
-#         self.assertTrue(self.testdetector.isstreaming)
+    # def test_stream(self):
+    #     self.assertTrue(self.testdetector.isstreaming)
 
 
 #     def test_StopDrones(self):
