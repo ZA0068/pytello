@@ -194,12 +194,21 @@ class Arucodetector:
     def GetRotoTranslationVector(self) -> np.array:
         return self.rt_vec
     
-    def GetRotationVector(self, index):
-        return self.GetRotoTranslationVector()[0][index, 0, :]
+    def GetRotationVector(self, index, rpy) -> np.array:
+        return self.GetRotoTranslationVector()[0][index, 0, :][rpy]
     
-    def GetTranslationVector(self, index):
-        return self.GetRotoTranslationVector()[1][index, 0, :]
+    def GetTranslationVector(self, index, xyz) -> np.array:
+        return self.GetRotoTranslationVector()[1][index, 0, :][xyz]
+
+    def GetMarkerXPos(self, index = 0) -> float:
+        return self.GetTranslationVector(index, 0) 
     
+    def GetMarkerYPos(self, index = 0) -> float:
+        return self.GetTranslationVector(index, 1) 
+
+    def GetMarkerZPos(self, index = 0) -> float:
+        return self.GetTranslationVector(index, 2)
+
 # Others
 
     def ConnectDrone(self) -> None:
@@ -239,11 +248,17 @@ class Arucodetector:
             self.DrawBoundingBoxesOnMarkers()
             self.SetRotoTranslationVector()
             for index in range(self.ids.size):
-                  self.DrawAxisOnMarkers(index)
-                  str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
-                  cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+                  self.DrawAxesOnMarkers(index)
+                  self.DrawText()
 
-    def DrawAxisOnMarkers(self, index):
+    def DrawText(self):
+        MarkerXPos = self.GetMarkerXPos()
+        MarkerYPos = self.GetMarkerYPos()
+        MarkerZPos = self.GetMarkerZPos()
+        str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(MarkerXPos, MarkerYPos, MarkerZPos)
+        cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+
+    def DrawAxesOnMarkers(self, index):
         cv.aruco.drawAxis(self.GetImage(), 
                           self.GetCameraMatrix(),
                           self.GetDistortionCoefficients(),
