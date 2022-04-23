@@ -29,7 +29,7 @@ class Arucodetector:
         self.ids = None
         self.corners = None
         self.rejected = None
-        
+        self.rt_vec = None
                 
 # Setters
 
@@ -107,10 +107,10 @@ class Arucodetector:
         self.SetCameraMatrix(self.LoadFile('cameraMatrix.txt'))
         self.SetDistortionCoefficients(self.LoadFile('cameraDistortion.txt'))
 
-    def SetWaitKey(self, wait_in_milliseconds):
+    def SetWaitKey(self, wait_in_milliseconds) -> None:
         self.waitkey = cv.waitKey(wait_in_milliseconds)
     
-    def SetImage(self, frame):
+    def SetImage(self, frame) -> None:
         self.image = cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
 
 # Getters
@@ -191,6 +191,15 @@ class Arucodetector:
     def ExitStream(self) -> bool:
         return self.GetKey() == 27 or self.GetKey() == ord('q')
     
+    def GetRotoTranslationVector(self) -> np.array:
+        return self.rt_vec
+    
+    def GetRotationVector(self, index):
+        return self.GetRotoTranslationVector()[0][index, 0, :]
+    
+    def GetTranslationVector(self, index):
+        return self.GetRotoTranslationVector()[1][index, 0, :]
+    
 # Others
 
     def ConnectDrone(self) -> None:
@@ -228,14 +237,28 @@ class Arucodetector:
     def DrawDetectedMarkers(self) -> None:
         if self.IsMarkerDetected():
             self.DrawBoundingBoxesOnMarkers()
-            rt_vec = self.EstimatePoseFromSingeMarker()
-            for i in range(self.ids.size):
-                  cv.aruco.drawAxis(self.img, self.cameraMatrix, self.distCoeffs, rt_vec[0][i,i,:], rt_vec[1][i,i,:], 1)
+            self.SetRotoTranslationVector()
+            for index in range(self.ids.size):
+                  self.DrawAxisOnMarkers(index)
                   str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
-                  cv.putText(self.img, str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+                  cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+
+    def DrawAxisOnMarkers(self, index):
+        cv.aruco.drawAxis(self.GetImage(), 
+                          self.GetCameraMatrix(),
+                          self.GetDistortionCoefficients(),
+                          self.GetRotationVector(index),
+                          self.GetTranslationVector(index),
+                          self.GetMarkerLength())
+
+    def SetRotoTranslationVector(self):
+        self.rt_vec = self.EstimatePoseFromSingeMarker()
 
     def EstimatePoseFromSingeMarker(self):
-        return cv.aruco.estimatePoseSingleMarkers(self.corners, 10, self.cameraMatrix, self.distCoeffs)
+        return cv.aruco.estimatePoseSingleMarkers(self.GetCorners(),
+                                                  self.GetMarkerLength(),
+                                                  self.GetCameraMatrix(),
+                                                  self.GetDistortionCoefficients())
 
     def DrawBoundingBoxesOnMarkers(self):
         cv.aruco.drawDetectedMarkers(self.GetImage(), self.GetMarkerCorners(), self.GetMarkerIds())
