@@ -244,7 +244,6 @@ class Arucodetector:
    
     def Stream(self, frame):
         start_time = time.time()
-        self.FindMarkers(self.GetImage())
         self.DisplayImage(frame)
         self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
 
@@ -258,6 +257,7 @@ class Arucodetector:
 
     def DisplayImage(self, frame):
         self.SetImage(frame)
+        self.FindMarkers(self.GetImage())
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
 
@@ -287,6 +287,5 @@ class Arucodetector:
     def DisconnectDrone(self) -> None:
         if self.IsDroneConnected():
             self.GetDrone().quit()
-            del self.drone
             self.SetDrone(None)
             self.SetConnectionStatus(False)
