@@ -4,7 +4,6 @@ import os
 import time
 import math
 import sys
-import sys
 import traceback
 import av
 import time
@@ -205,6 +204,6 @@ class Arucodetector:
     def DisconnectDrone(self) -> None:
         if self.IsDroneConnected():
             self.GetDrone().quit()
-            del self.GetDrone()
+            del self.drone
             self.SetDrone(None)
             self.SetConnectionStatus(False)
