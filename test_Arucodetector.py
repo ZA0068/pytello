@@ -35,6 +35,12 @@ class TestArucodetector(unittest.TestCase):
     def test_FindAnyMarker(self):
         self.assertTrue(self.testdetector.IsMarkerDetected())
 
+
+    def test_FindClosestMarker(self):
+        self.assertTrue(self.testdetector.IsMarkerDetected())
+        self.assertGreater(self.testdetector.GetClosestMarkerDistance(), -1)
+        # self.assertIsNotNone(self.testdetector.GetClosestMarkerId())
+
 #     def test_Find_marker_pos_coordinates(self):
 #         self.testdetector.Run() 
 #         self.assertIsNotNone(self.testdetector.GetCameraXPosition())

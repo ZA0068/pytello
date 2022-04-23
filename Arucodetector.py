@@ -175,6 +175,8 @@ class Arucodetector:
     def GetRejectedCandidates(self):
         return self.rejected
     
+    def GetClosestMarkerDistance(self):
+        return 1
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -223,15 +225,20 @@ class Arucodetector:
     def FindClosestMarker(self):
         return self.GetMarkerIds()
 
-    # def draw(self) -> np.ndarray:
-    #     self.FindMarkers()
-    #     if self.ids is not None:
-    #         cv.aruco.drawDetectedMarkers(self.img, self.corners, self.ids)
-    #         rt_vec = cv.aruco.estimatePoseSingleMarkers(self.corners, 10, self.cameraMatrix, self.distCoeffs)
-    #         for i in range(self.ids.size):
-    #               cv.aruco.drawAxis(self.img, self.cameraMatrix, self.distCoeffs, rt_vec[0][i,i,:], rt_vec[1][i,i,:], 1)
-    #               str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
-    #               cv.putText(self.img, str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+    def DrawDetectedMarkers(self) -> None:
+        if self.IsMarkerDetected():
+            self.DrawBoundingBoxesOnMarkers()
+            rt_vec = self.EstimatePoseFromSingeMarker()
+            for i in range(self.ids.size):
+                  cv.aruco.drawAxis(self.img, self.cameraMatrix, self.distCoeffs, rt_vec[0][i,i,:], rt_vec[1][i,i,:], 1)
+                  str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
+                  cv.putText(self.img, str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+
+    def EstimatePoseFromSingeMarker(self):
+        return cv.aruco.estimatePoseSingleMarkers(self.corners, 10, self.cameraMatrix, self.distCoeffs)
+
+    def DrawBoundingBoxesOnMarkers(self):
+        cv.aruco.drawDetectedMarkers(self.GetImage(), self.GetMarkerCorners(), self.GetMarkerIds())
 
 
     def Run(self) -> None:
@@ -261,6 +268,7 @@ class Arucodetector:
     def DisplayImage(self, frame):
         self.SetImage(frame)
         self.FindMarkers(self.GetImage())
+        self.DrawDetectedMarkers()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
 
