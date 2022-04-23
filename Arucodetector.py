@@ -21,8 +21,13 @@ class Arucodetector:
         self.marker_length: int = 0
         self.font: int = 0
         self.amount_frame_to_skip = 0
-        self.keys = -1
-
+        self.key = -1
+        self.image = None
+        self.attributes = None
+        self.dictionary = None
+        self.parameters = None
+        
+                
 # Setters
 
     def Setup(self):
@@ -51,16 +56,19 @@ class Arucodetector:
     def SetStreamingStatus(self, status) -> None:
         self.is_drone_streaming = status
 
-    def ConnectDrone(self) -> None:
-        try:
-            self.SetDrone(tellopy.Tello())
-            self.GetDrone().connect()
-            self.GetDrone().wait_for_connection(60.0)
-            self.SetContainer(3)
-            self.SetConnectionStatus(True)
-        except Exception as ex:
-            self.Exception(ex)
+    def SetArucoDictionaryForDetector(self):
+        self.SetAttribute()
+        self.SetDictionary()
+        self.SetParameters()
 
+    def SetParameters(self):
+        self.parameters = cv.aruco.DetectorParameters_create()
+
+    def SetDictionary(self):
+        self.dictionary = cv.aruco.Dictionary_get(self.GetAttribute())
+
+    def SetAttribute(self):
+        self.attributes = getattr(cv.aruco, f'DICT_{self.GetMarkerSize()}X{self.GetMarkerSize()}_{self.GetNumbersOfMarkersInDictionary()}')
 
     def SetContainer(self, retry) -> None:
         while self.container is None and 0 < retry:
@@ -97,9 +105,15 @@ class Arucodetector:
         self.SetDistortionCoefficients(self.LoadFile('cameraDistortion.txt'))
 
     def SetKey(self, wait):
-        self.keys = cv.waitKey(wait)
-        
+        self.key = cv.waitKey(wait)
+    
+    def SetImage(self, frame):
+        self.image = cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
+
 # Getters
+
+    def GetAttribute(self):
+        return self.attributes
 
     def GetFlippedMatrix(self) -> np.array:
         return self.rotation_matrix
@@ -131,13 +145,16 @@ class Arucodetector:
     def GetFont(self) -> int:
         return self.font
 
+    def GetKey(self):
+        return self.key
+
     def GetContainer(self) -> av.container.input.InputContainer:
         return self.container
 
-    def GetImage(self, frame) -> np.array:
-        return cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
-        
-# Is boolean
+    def GetImage(self) -> np.array:
+        return self.image
+    
+# Boolean
 
     def IsDroneConnected(self) -> bool:
         return self.is_drone_connected
@@ -145,7 +162,23 @@ class Arucodetector:
     def IsDroneStreaming(self) -> bool:
         return self.is_drone_streaming
 
+    def IsMarkerDetected(self) -> bool:
+        return True
+    
+    def ExitStream(self) -> bool:
+        return self.GetKey() == 27 or self.GetKey() == ord('q')
+    
 # Others
+
+    def ConnectDrone(self) -> None:
+        try:
+            self.SetDrone(tellopy.Tello())
+            self.GetDrone().connect()
+            self.GetDrone().wait_for_connection(60.0)
+            self.SetContainer(3)
+            self.SetConnectionStatus(True)
+        except Exception as ex:
+            self.Exception(ex)
 
     def Exception(self, ex):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -157,10 +190,12 @@ class Arucodetector:
 
     def FindMarkers(self, image) -> tuple:
         gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        key = getattr(cv.aruco, f'DICT_{self.GetMarkerSize()}X{self.GetMarkerSize()}_{self.GetNumbersOfMarkersInDictionary()}')
-        dictionary = cv.aruco.Dictionary_get(key)
-        parameters = cv.aruco.DetectorParameters_create()
+        
         return cv.aruco.detectMarkers(gray_image, dictionary, parameters=parameters, cameraMatrix = self.GetCameraMatrix(), distCoeff = self.GetDistortionCoefficients())
+
+    def FindClosestMarker(self):
+        corners, ids, rejected = self.FindMarkers(self.GetImage())
+        return ids
 
     def draw(self) -> np.ndarray:
         self.FindMarkers()
@@ -180,7 +215,9 @@ class Arucodetector:
                 if self.SkipFrames():
                     continue
                 self.Stream(frame)
-
+                if self.ExitStream():
+                    break
+   
     def Stream(self, frame):
         start_time = time.time()
         self.DisplayImage(frame)
@@ -197,8 +234,8 @@ class Arucodetector:
             return frame.time_base
 
     def DisplayImage(self, frame):
-        image = self.GetImage(frame)
-        cv.imshow('Original', image)
+        self.SetImage(frame)
+        cv.imshow('Original', self.GetImage())
         self.SetKey(1)
 
 
@@ -208,13 +245,13 @@ class Arucodetector:
 
     def End(self) -> None:
         self.DeleteCameraCalibration()
-        self.StopStream()
         self.DisconnectDrone()
+        self.StopStream()
 
     def StopStream(self) -> None:
         if self.IsDroneStreaming():
             try:
-                self.GetContainer().close()
+                cv.destroyAllWindows()
                 self.SetStreamingStatus(False)
             except av.AVError as ave:
                 print(ave)

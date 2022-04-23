@@ -9,6 +9,7 @@ class TestArucodetector(unittest.TestCase):
         self.testdetector = Arucodetector()
         self.testdetector.Setup()
         self.testdetector.ConnectDrone()
+        self.testdetector.Run()
 
     def tearDown(self):
         self.testdetector.End()
@@ -28,23 +29,13 @@ class TestArucodetector(unittest.TestCase):
     def test_container(self):
         self.assertIsInstance(self.testdetector.GetContainer(), av.container.input.InputContainer)
 
-    def test_StopDrones(self):
-        self.testdetector.End()
-        self.assertFalse(self.testdetector.IsDroneConnected())
-        self.assertFalse(self.testdetector.IsDroneStreaming())
-        self.assertIsNone(self.testdetector.GetCameraMatrix())
-        self.assertIsNone(self.testdetector.GetDistortionCoefficients())
-        self.assertIsNone(self.testdetector.GetDrone())
-
     def test_GetImageFromStream(self):
-        self.testdetector.Run()
         self.assertIsNotNone(self.testdetector.GetImage())
 
-#     def test_Find_closest_marker(self):
-#         self.testdetector.Run() 
-#         self.assertTrue(self.testdetector.IsMarkerDetected())
-#         self.assertIsNotNone(self.testdetector.FindClosestMarker())
-#         self.assertGreater(self.testdetector.FindClosestMarkerDistance(), -1)
+    def test_Find_closest_marker(self):
+        self.assertTrue(self.testdetector.IsMarkerDetected())
+        self.assertIsNotNone(self.testdetector.FindClosestMarker())
+        # self.assertGreater(self.testdetector.FindClosestMarkerDistance(), -1)
 
 #     def test_Find_marker_pos_coordinates(self):
 #         self.testdetector.Run() 
