@@ -21,7 +21,7 @@ class Arucodetector:
         self.marker_length: int = 0
         self.font: int = 0
         self.amount_frame_to_skip = 0
-        self.key = -1
+        self.waitkey = -1
         self.image = None
         self.attributes = None
         self.dictionary = None
@@ -104,8 +104,8 @@ class Arucodetector:
         self.SetCameraMatrix(self.LoadFile('cameraMatrix.txt'))
         self.SetDistortionCoefficients(self.LoadFile('cameraDistortion.txt'))
 
-    def SetKey(self, wait):
-        self.key = cv.waitKey(wait)
+    def SetWaitKey(self, wait_in_milliseconds):
+        self.waitkey = cv.waitKey(wait_in_milliseconds)
     
     def SetImage(self, frame):
         self.image = cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
@@ -149,7 +149,7 @@ class Arucodetector:
         return self.font
 
     def GetKey(self):
-        return self.key
+        return self.waitkey
 
     def GetContainer(self) -> av.container.input.InputContainer:
         return self.container
@@ -160,6 +160,18 @@ class Arucodetector:
     def GetParameters(self):
         return self.parameters
     
+    def GetAllMarkerProperties(self):
+        return self.GetMarkerCorners(), self.GetMarkerIds(), self.GetRejectedCandidates()
+    
+    def GetMarkerCorners(self):
+        return self.corners
+    
+    def GetMarkerIds(self):
+        return self.ids
+    
+    def GetRejectedCandidates(self):
+        return self.rejected
+    
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -169,7 +181,7 @@ class Arucodetector:
         return self.is_drone_streaming
 
     def IsMarkerDetected(self) -> bool:
-        return True
+        return self.GetMarkerIds() is not None
     
     def ExitStream(self) -> bool:
         return self.GetKey() == 27 or self.GetKey() == ord('q')
@@ -195,7 +207,7 @@ class Arucodetector:
         return np.loadtxt(filename, delimiter=',')
 
     def FindMarkers(self, image) -> tuple:
-        return cv.aruco.detectMarkers(
+        self.corners, self.ids, self.rejected = cv.aruco.detectMarkers(
             self.ConvertImageToGrayscale(image), 
             self.GetDictionary(),
             parameters=self.GetParameters(),
@@ -206,22 +218,22 @@ class Arucodetector:
         return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
     def FindClosestMarker(self):
-        corners, ids, rejected = self.FindMarkers(self.GetImage())
-        return ids
+        return self.GetMarkerIds()
 
-    def draw(self) -> np.ndarray:
-        self.FindMarkers()
-        if self.ids is not None:
-            cv.aruco.drawDetectedMarkers(self.img, self.corners, self.ids)
-            rt_vec = cv.aruco.estimatePoseSingleMarkers(self.corners, 10, self.cameraMatrix, self.distCoeffs)
-            for i in range(self.ids.size):
-                  cv.aruco.drawAxis(self.img, self.cameraMatrix, self.distCoeffs, rt_vec[0][i,i,:], rt_vec[1][i,i,:], 1)
-                  str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
-                  cv.putText(self.img, str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+    # def draw(self) -> np.ndarray:
+    #     self.FindMarkers()
+    #     if self.ids is not None:
+    #         cv.aruco.drawDetectedMarkers(self.img, self.corners, self.ids)
+    #         rt_vec = cv.aruco.estimatePoseSingleMarkers(self.corners, 10, self.cameraMatrix, self.distCoeffs)
+    #         for i in range(self.ids.size):
+    #               cv.aruco.drawAxis(self.img, self.cameraMatrix, self.distCoeffs, rt_vec[0][i,i,:], rt_vec[1][i,i,:], 1)
+    #               str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(rt_vec[1][0,0,:][0], rt_vec[1][0,0,:][1], rt_vec[1][0,0,:][2])
+    #               cv.putText(self.img, str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
 
 
     def Run(self) -> None:
         if self.IsDroneConnected():
+            self.SetArucoDictionaryForDetector()
             self.SetFrameSkip(300)
             for frame in self.GetContainer().decode(video=0):
                 if self.SkipFrames():
@@ -232,9 +244,9 @@ class Arucodetector:
    
     def Stream(self, frame):
         start_time = time.time()
+        self.FindMarkers(self.GetImage())
         self.DisplayImage(frame)
-        time_base = self.GetTimeBase(frame)
-        self.UpdateFrameSkip(start_time, time_base)
+        self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
 
     def UpdateFrameSkip(self, start_time, time_base) -> None:
         self.SetFrameSkip(int((time.time() - start_time)/time_base))
@@ -242,13 +254,12 @@ class Arucodetector:
     def GetTimeBase(self, frame):
         if frame.time_base < 1.0/60:
             return 1.0/60
-        else:
-            return frame.time_base
+        return frame.time_base
 
     def DisplayImage(self, frame):
         self.SetImage(frame)
         cv.imshow('Original', self.GetImage())
-        self.SetKey(1)
+        self.SetWaitKey(1)
 
 
     def SkipFrames(self) -> int:
