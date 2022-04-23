@@ -200,13 +200,13 @@ class Arucodetector:
     def GetTranslationVector(self, index, xyz) -> np.array:
         return self.GetRotoTranslationVector()[1][index, 0, :][xyz]
 
-    def GetMarkerXPos(self, index = 0) -> float:
+    def GetMarkerXPos(self, index) -> float:
         return self.GetTranslationVector(index, 0) 
     
-    def GetMarkerYPos(self, index = 0) -> float:
+    def GetMarkerYPos(self, index) -> float:
         return self.GetTranslationVector(index, 1) 
 
-    def GetMarkerZPos(self, index = 0) -> float:
+    def GetMarkerZPos(self, index) -> float:
         return self.GetTranslationVector(index, 2)
 
 # Others
@@ -251,12 +251,13 @@ class Arucodetector:
                   self.DrawAxesOnMarkers(index)
                   self.DrawText()
 
-    def DrawText(self):
-        MarkerXPos = self.GetMarkerXPos()
-        MarkerYPos = self.GetMarkerYPos()
-        MarkerZPos = self.GetMarkerZPos()
-        str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f"%(MarkerXPos, MarkerYPos, MarkerZPos)
-        cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+    def DrawText(self, index, Draw=True):
+        if Draw:
+            str_position = self.GetTextString(index)
+            cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+
+    def GetTextString(self, index):
+        return f"{MARKER} Position x=%4.0f  y=%4.0f  z=%4.0f"%(self.GetMarkerXPos(index), self.GetMarkerYPos(index), self.GetMarkerZPos(index))
 
     def DrawAxesOnMarkers(self, index):
         cv.aruco.drawAxis(self.GetImage(), 
