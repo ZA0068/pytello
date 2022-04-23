@@ -26,6 +26,9 @@ class Arucodetector:
         self.attributes = None
         self.dictionary = None
         self.parameters = None
+        self.ids = None
+        self.corners = None
+        self.rejected = None
         
                 
 # Setters

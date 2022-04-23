@@ -32,10 +32,8 @@ class TestArucodetector(unittest.TestCase):
     def test_GetImageFromStream(self):
         self.assertIsNotNone(self.testdetector.GetImage())
 
-    def test_Find_closest_marker(self):
+    def test_FindAnyMarker(self):
         self.assertTrue(self.testdetector.IsMarkerDetected())
-        self.assertIsNotNone(self.testdetector.FindClosestMarker())
-        # self.assertGreater(self.testdetector.FindClosestMarkerDistance(), -1)
 
 #     def test_Find_marker_pos_coordinates(self):
 #         self.testdetector.Run() 
