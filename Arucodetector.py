@@ -20,8 +20,8 @@ class Arucodetector:
         self.RotationMatrix: np.array = None
         self.marker_length: int = 0
         self.font: int = 0
-
-
+        self.amount_frame_to_skip = 0
+        self.keys = -1
 
 # Setters
 
@@ -89,10 +89,16 @@ class Arucodetector:
     def SetCameraMatrix(self, array) -> None:
         self.cameraMatrix = array
 
+    def SetFrameSkip(self, frameskip) -> None:
+        self.amount_frame_to_skip = frameskip
+
     def SetCameraCalibrations(self) -> None:
         self.SetCameraMatrix(self.LoadFile('cameraMatrix.txt'))
         self.SetDistortionCoefficients(self.LoadFile('cameraDistortion.txt'))
 
+    def SetKey(self, wait):
+        self.keys = cv.waitKey(wait)
+        
 # Getters
 
     def GetFlippedMatrix(self) -> np.array:
@@ -116,6 +122,9 @@ class Arucodetector:
     def GetMarkerSize(self) -> int:
         return self.marker_size
 
+    def GetAmountFrameToSkip(self) -> int:
+        return self.amount_frame_to_skip
+
     def GetNumbersOfMarkersInDictionary(self) -> int:
         return self.total_markers_in_dictionary
 
@@ -125,6 +134,9 @@ class Arucodetector:
     def GetContainer(self) -> av.container.input.InputContainer:
         return self.container
 
+    def GetImage(self, frame) -> np.array:
+        return cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
+        
 # Is boolean
 
     def IsDroneConnected(self) -> bool:
@@ -162,26 +174,37 @@ class Arucodetector:
 
 
     def Run(self) -> None:
-        if self.connected == True:
-            # skip first 300 frames
-            frame_skip = 300
-            while True:
-                for frame in self.GetContainer().decode(video=0):
-                    if 0 < frame_skip:
-                        frame_skip = frame_skip - 1
-                        continue
-                    start_time = time.time()
-                    image = cv.cvtColor(np.array(frame.to_image()), cv.COLOR_RGB2BGR)
-                    cv.imshow('Original', image)
-                    cv.imshow('Canny', cv.Canny(image, 100, 200))
-                    cv.waitKey(1)
-                    if frame.time_base < 1.0/60:
-                        time_base = 1.0/60
-                    else:
-                        time_base = frame.time_base
-                    frame_skip = int((time.time() - start_time)/time_base)
+        if self.IsDroneConnected():
+            self.SetFrameSkip(300)
+            for frame in self.GetContainer().decode(video=0):
+                if self.SkipFrames():
+                    continue
+                self.Stream(frame)
+
+    def Stream(self, frame):
+        start_time = time.time()
+        self.DisplayImage(frame)
+        time_base = self.GetTimeBase(frame)
+        self.UpdateFrameSkip(start_time, time_base)
+
+    def UpdateFrameSkip(self, start_time, time_base) -> None:
+        self.SetFrameSkip(int((time.time() - start_time)/time_base))
+
+    def GetTimeBase(self, frame):
+        if frame.time_base < 1.0/60:
+            return 1.0/60
         else:
-            return
+            return frame.time_base
+
+    def DisplayImage(self, frame):
+        image = self.GetImage(frame)
+        cv.imshow('Original', image)
+        self.SetKey(1)
+
+
+    def SkipFrames(self) -> int:
+        self.SetFrameSkip(self.GetAmountFrameToSkip() - 1)
+        return self.GetAmountFrameToSkip() > 0
 
     def End(self) -> None:
         self.DeleteCameraCalibration()

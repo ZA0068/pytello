@@ -36,9 +36,9 @@ class TestArucodetector(unittest.TestCase):
         self.assertIsNone(self.testdetector.GetDistortionCoefficients())
         self.assertIsNone(self.testdetector.GetDrone())
 
-#     def test_GetImageFromStream(self):
-#         self.testdetector.Run()
-#         self.assertIsNotNone(self.testdetector.GetImage())
+    def test_GetImageFromStream(self):
+        self.testdetector.Run()
+        self.assertIsNotNone(self.testdetector.GetImage())
 
 #     def test_Find_closest_marker(self):
 #         self.testdetector.Run() 
