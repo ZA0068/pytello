@@ -121,6 +121,9 @@ class Arucodetector:
     def GetCameraMatrix(self) -> np.array:
         return self.cameraMatrix
 
+    def GetDictionary(self) -> dict:
+        return self.dictionary
+
     def GetDistortionCoefficients(self) -> np.array:
         return self.distCoeffs
     
@@ -153,6 +156,9 @@ class Arucodetector:
 
     def GetImage(self) -> np.array:
         return self.image
+    
+    def GetParameters(self):
+        return self.parameters
     
 # Boolean
 
@@ -189,9 +195,15 @@ class Arucodetector:
         return np.loadtxt(filename, delimiter=',')
 
     def FindMarkers(self, image) -> tuple:
-        gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        
-        return cv.aruco.detectMarkers(gray_image, dictionary, parameters=parameters, cameraMatrix = self.GetCameraMatrix(), distCoeff = self.GetDistortionCoefficients())
+        return cv.aruco.detectMarkers(
+            self.ConvertImageToGrayscale(image), 
+            self.GetDictionary(),
+            parameters=self.GetParameters(),
+            cameraMatrix = self.GetCameraMatrix(),
+            distCoeff = self.GetDistortionCoefficients())
+
+    def ConvertImageToGrayscale(self, image):
+        return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
     def FindClosestMarker(self):
         corners, ids, rejected = self.FindMarkers(self.GetImage())
