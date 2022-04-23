@@ -2,7 +2,7 @@ import unittest
 from Arucodetector import Arucodetector
 import tellopy
 import simpful as fuzzy
-
+import av
 class TestArucodetector(unittest.TestCase):
 
     def setUp(self):
@@ -12,6 +12,7 @@ class TestArucodetector(unittest.TestCase):
 
     def tearDown(self):
         self.testdetector.End()
+        del self.testdetector
         print('Testing are done.')
 
     def test_SetDrone(self):
@@ -24,6 +25,8 @@ class TestArucodetector(unittest.TestCase):
     def test_stream(self):
         self.assertTrue(self.testdetector.IsDroneStreaming())
 
+    def test_container(self):
+        self.assertIsInstance(self.testdetector.GetContainer(), av.container.input.InputContainer)
 
     def test_StopDrones(self):
         self.testdetector.End()
