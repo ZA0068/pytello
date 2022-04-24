@@ -8,6 +8,7 @@ import traceback
 import av
 import time
 import tellopy
+import colorsys
 
 class Arucodetector:
     def __init__(self):
@@ -276,6 +277,12 @@ class Arucodetector:
             z = 0
 
         return np.array([x, y, z])
+
+    def hsv2rgb(self, h, s, v):
+        return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h/360.0,s,v))
+
+    def SwitchColor(self, index, phase):
+        return self.hsv2rgb(20*index + phase, 1, 1)
 
     def ConnectDrone(self) -> None:
         try:
