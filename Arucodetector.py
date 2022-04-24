@@ -253,11 +253,25 @@ class Arucodetector:
 
     def DrawText(self, index, Draw=True):
         if Draw:
-            str_position = self.GetTextString(index)
-            cv.putText(self.GetImage(), str_position, (0, 100), self.font, 1, (0, 255, 0), 2, cv.LINE_AA)
+            self.WriteMarkerPosition(index)
+            
 
-    def GetTextString(self, index):
-        return f"{MARKER} Position x=%4.0f  y=%4.0f  z=%4.0f"%(self.GetMarkerXPos(index), self.GetMarkerYPos(index), self.GetMarkerZPos(index))
+    def WriteMarkerPosition(self, index):
+        self.WriteText("Marker Position:", ["x", "y", "z"], self.GetTranslationVector, 0, index)
+
+    def WriteText(self, name, coord, vec, spacing, index):
+        str_position = self.GetTextString(name, coord, vec, index)
+        cv.putText(img = self.GetImage(),
+                   text= str_position,
+                   org = (0, 20 + index*20 + spacing),
+                   fontFace = self.GetFont(),
+                   fontScale = 1.5,
+                   color = (0, 255, 0),
+                   thickness = 2,
+                   lineType = cv.LINE_AA)
+
+    def GetTextString(self, name, coord, vec, index):
+        return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index, 0), vec(index, 1), vec(index, 2))
 
     def DrawAxesOnMarkers(self, index):
         cv.aruco.drawAxis(self.GetImage(), 
