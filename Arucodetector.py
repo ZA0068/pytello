@@ -179,11 +179,15 @@ class Arucodetector:
     def GetRejectedCandidates(self):
         return self.rejected
     
+    def GetMarkerIDLength(self) -> int:
+        return self.GetMarkerIds().size
+    
     def GetClosestMarkerDistance(self):
-        return 1
+        return min(self.GetMarkerZPos(-1))
     
     def GetClosestMarkerId(self):
-        return self.ids
+        return self.ids[np.argmin(self.GetMarkerZPos(-1))]
+    
     
     def GetRotoTranslationVector(self) -> np.array:
         return self.rt_vec
@@ -195,15 +199,17 @@ class Arucodetector:
         return self.GetRotoTranslationVector()[0][index, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
+        if index < 0:
+            return self.GetRotoTranslationVector()[1][:, 0, :]
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
-    def GetMarkerXPos(self, index) -> float:
+    def GetMarkerXPos(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[0] 
     
-    def GetMarkerYPos(self, index) -> float:
+    def GetMarkerYPos(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[1]
 
-    def GetMarkerZPos(self, index) -> float:
+    def GetMarkerZPos(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[2]
 
     def GetMarkerPsi(self, index) -> float:
@@ -320,7 +326,7 @@ class Arucodetector:
         if self.IsMarkerDetected():
             self.DrawBoundingBoxesOnMarkers()
             self.SetRotoTranslationVector()
-            for index in range(self.ids.size):
+            for index in range(self.GetMarkerIDLength()):
                   self.DrawAxesOnMarkers(index)
                   self.DrawText(index)
 
