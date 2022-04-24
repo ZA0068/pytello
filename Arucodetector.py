@@ -278,11 +278,11 @@ class Arucodetector:
 
         return np.array([x, y, z])
 
-    def hsv2rgb(self, h, s, v):
+    def HSV2RGB(self, h, s, v):
         return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h/360.0,s,v))
 
-    def SwitchColor(self, index, phase):
-        return self.hsv2rgb(20*index + phase, 1, 1)
+    def CycleColor(self, index, phase=0):
+        return self.HSV2RGB(30*index + phase, 1, 1)
 
     def ConnectDrone(self) -> None:
         try:
@@ -366,7 +366,7 @@ class Arucodetector:
                    org          = (0, 21 + index*21 + spacing),
                    fontFace     = self.GetFont(),
                    fontScale    = 1.5,
-                   color        = (0, 255, 0),
+                   color        = self.CycleColor(index, 120),
                    thickness    = 2,
                    lineType     = cv.LINE_AA)
 
