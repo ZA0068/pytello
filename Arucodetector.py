@@ -211,7 +211,7 @@ class Arucodetector:
     def isRotationMatrix(self, R):
         Rt = np.transpose(R)
         shouldBeIdentity = np.dot(Rt, R)
-        I = np.identidy(3, dtype=R.dtype)
+        I = np.identity(3, dtype=R.dtype)
         n = np.linalg.norm(I - shouldBeIdentity)
         return n < 1e-6
     
@@ -249,10 +249,10 @@ class Arucodetector:
         return self.GetEulerAngles(index)[2]    
 
     def GetRotationMatrix(self, index) -> np.matrix:
-        return np.matrix(cv.Rodigues(self.GetRotationVector(index))[0]).T
+        return np.matrix(cv.Rodrigues(self.GetRotationVector(index))[0]).T
 
     def GetEulerAngles(self, index) -> np.array:
-        return self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index))
+        return np.rad2deg(self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index)))
 
 # Others
 
@@ -299,10 +299,14 @@ class Arucodetector:
     def DrawText(self, index, Draw=True):
         if Draw:
             self.WriteMarkerPosition(index)
+            self.WriteMarkerOrientation(index)
             
 
     def WriteMarkerPosition(self, index):
         self.WriteText("Marker Position:", ["x", "y", "z"], self.GetTranslationVector, 0, index)
+
+    def WriteMarkerOrientation(self, index):
+        self.WriteText("Marker Attitude:", ["psi", "theta", "phi"], self.GetEulerAngles, 60, index)
 
     def WriteText(self, name, coord, vec, spacing, index):
         str_position = self.GetTextString(name, coord, vec, index)
