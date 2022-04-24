@@ -30,6 +30,7 @@ class Arucodetector:
         self.corners = None
         self.rejected = None
         self.rt_vec = None
+        self.spacing = None
 
     def Setup(self):
         self.SetFlippedMatrix()
@@ -38,6 +39,7 @@ class Arucodetector:
         self.SetMarkerSize(5)
         self.SetNumbersOfMarkersInDictionary(50)
         self.SetCameraCalibrations()
+        self.SetSpacing(21)
 
     def SetNumbersOfMarkersInDictionary(self, totalMarkers) -> None:
         self.total_markers_in_dictionary = totalMarkers;
@@ -61,6 +63,9 @@ class Arucodetector:
         self.SetAttribute()
         self.SetDictionary()
         self.SetParameters()
+
+    def SetSpacing(self, spacing):
+        self.spacing = spacing
 
     def SetParameters(self):
         self.parameters = cv.aruco.DetectorParameters_create()
@@ -179,23 +184,56 @@ class Arucodetector:
     def GetClosestMarkerId(self):
         return self.ids
     
-    def rotationMatrixToEulerAngles(self, R):
-        assert (self.isRotationMatrix(R))
+    def GetRotoTranslationVector(self) -> np.array:
+        return self.rt_vec
 
-        sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+    def GetTextString(self, name, coord, vec, index):
+        return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
 
-        singular = sy < 1e-6
+    def GetMarkerRotationVector(self, index) -> np.array:
+        return self.GetRotoTranslationVector()[0][index, 0, :]
+    
+    def GetMarkerTranslationVector(self, index) -> np.array:
+        return self.GetRotoTranslationVector()[1][index, 0, :]
 
-        if not singular:
-            x = math.atan2(R[2, 1], R[2, 2])
-            y = math.atan2(-R[2, 0], sy)
-            z = math.atan2(R[1, 0], R[0, 0])
-        else:
-            x = math.atan2(-R[1, 2], R[1, 1])
-            y = math.atan2(-R[2, 0], sy)
-            z = 0
+    def GetMarkerXPos(self, index) -> float:
+        return self.GetMarkerTranslationVector(index)[0] 
+    
+    def GetMarkerYPos(self, index) -> float:
+        return self.GetMarkerTranslationVector(index)[1]
 
-        return np.array([x, y, z])
+    def GetMarkerZPos(self, index) -> float:
+        return self.GetMarkerTranslationVector(index)[2]
+
+    def GetMarkerPsi(self, index) -> float:
+        return self.GetMarkerCameraEulerAngles(index)[0]
+    
+    def GetMarkerTheta(self, index) -> float:
+        return self.GetMarkerCameraEulerAngles(index)[1]
+    
+    def GetMarkerPhi(self, index) -> float:
+        return self.GetMarkerCameraEulerAngles(index)[2]    
+
+    def GetRotationMatrix(self, index) -> np.matrix:
+        return np.matrix(cv.Rodrigues(self.GetMarkerRotationVector(index))[0]).T
+
+    def GetMarkerCameraEulerAngles(self, index) -> np.array:
+        return np.rad2deg(self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index)))
+
+    def GetCameraTranslationVector(self, index):
+        return -self.GetRotationMatrix(index)*np.matrix(self.GetMarkerTranslationVector(index)).T
+
+    def GetCameraXPos(self, index) -> float:
+        return self.GetCameraTranslationVector(index)[0]
+    
+    def GetCameraYPos(self, index) -> float:
+        return self.GetMarkerTranslationVector(index)[1]
+
+    def GetCameraZPos(self, index) -> float:
+        return self.GetCameraTranslationVector(index)[2]
+    
+    def GetSpacing(self)-> int:
+        return self.spacing
     
 # Boolean
 
@@ -218,43 +256,26 @@ class Arucodetector:
     def ExitStream(self) -> bool:
         return self.GetKey() == 27 or self.GetKey() == ord('q')
     
-    def GetRotoTranslationVector(self) -> np.array:
-        return self.rt_vec
-
-    def GetTextString(self, name, coord, vec, index):
-        return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
-
-    def GetRotationVector(self, index) -> np.array:
-        return self.GetRotoTranslationVector()[0][index, 0, :]
-    
-    def GetTranslationVector(self, index) -> np.array:
-        return self.GetRotoTranslationVector()[1][index, 0, :]
-
-    def GetMarkerXPos(self, index) -> float:
-        return self.GetTranslationVector(index)[0] 
-    
-    def GetMarkerYPos(self, index) -> float:
-        return self.GetTranslationVector(index)[1]
-
-    def GetMarkerZPos(self, index) -> float:
-        return self.GetTranslationVector(index)[2]
-
-    def GetMarkerPsi(self, index) -> float:
-        return self.GetEulerAngles(index)[0]
-    
-    def GetMarkerTheta(self, index) -> float:
-        return self.GetEulerAngles(index)[1]
-    
-    def GetMarkerPhi(self, index) -> float:
-        return self.GetEulerAngles(index)[2]    
-
-    def GetRotationMatrix(self, index) -> np.matrix:
-        return np.matrix(cv.Rodrigues(self.GetRotationVector(index))[0]).T
-
-    def GetEulerAngles(self, index) -> np.array:
-        return np.rad2deg(self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index)))
 
 # Others
+
+    def rotationMatrixToEulerAngles(self, R):
+        assert (self.isRotationMatrix(R))
+
+        sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+
+        singular = sy < 1e-6
+
+        if not singular:
+            x = math.atan2(R[2, 1], R[2, 2])
+            y = math.atan2(-R[2, 0], sy)
+            z = math.atan2(R[1, 0], R[0, 0])
+        else:
+            x = math.atan2(-R[1, 2], R[1, 1])
+            y = math.atan2(-R[2, 0], sy)
+            z = 0
+
+        return np.array([x, y, z])
 
     def ConnectDrone(self) -> None:
         try:
@@ -300,32 +321,55 @@ class Arucodetector:
         if Draw:
             self.WriteMarkerPosition(index)
             self.WriteMarkerOrientation(index)
-            
+            self.WriteCameraPosition(index)
+            self.WriteCameraOrientation(index)
 
     def WriteMarkerPosition(self, index):
-        self.WriteText("Marker Position:", ["x", "y", "z"], self.GetTranslationVector, 0, index)
+        self.WriteText(name     = "Marker Position:",
+                       coord    = ["x", "y", "z"],
+                       vec      = self.GetMarkerTranslationVector,
+                       spacing  = 0,
+                       index    = index)
 
     def WriteMarkerOrientation(self, index):
-        self.WriteText("Marker Attitude:", ["psi", "theta", "phi"], self.GetEulerAngles, 60, index)
+        self.WriteText(name     = "Marker Attitude:",
+                       coord    = ["psi", "theta", "phi"],
+                       vec      = self.GetMarkerCameraEulerAngles,
+                       spacing  = 6*self.GetSpacing(),
+                       index    = index)
+        
+    def WriteCameraPosition(self, index):
+        self.WriteText(name     = "Camera Position:",
+                       coord    = ["x'", "y'", "z'"],
+                       vec      = self.GetCameraTranslationVector,
+                       spacing  = 2*6*self.GetSpacing(),
+                       index    = index)
 
+    def WriteCameraOrientation(self, index):
+        self.WriteText(name     = "Camera Attitude:",
+                       coord    = ["psi'", "theta'", "phi'"],
+                       vec      = self.GetMarkerCameraEulerAngles,
+                       spacing  = 3*6*self.GetSpacing(),
+                       index    = index)
+        
     def WriteText(self, name, coord, vec, spacing, index):
         str_position = self.GetTextString(name, coord, vec, index)
-        cv.putText(img = self.GetImage(),
-                   text= str_position,
-                   org = (0, 20 + index*20 + spacing),
-                   fontFace = self.GetFont(),
-                   fontScale = 1.5,
-                   color = (0, 255, 0),
-                   thickness = 2,
-                   lineType = cv.LINE_AA)
+        cv.putText(img          = self.GetImage(),
+                   text         = str_position,
+                   org          = (0, 21 + index*21 + spacing),
+                   fontFace     = self.GetFont(),
+                   fontScale    = 1.5,
+                   color        = (0, 255, 0),
+                   thickness    = 2,
+                   lineType     = cv.LINE_AA)
 
 
     def DrawAxesOnMarkers(self, index):
         cv.aruco.drawAxis(self.GetImage(), 
                           self.GetCameraMatrix(),
                           self.GetDistortionCoefficients(),
-                          self.GetRotationVector(index),
-                          self.GetTranslationVector(index),
+                          self.GetMarkerRotationVector(index),
+                          self.GetMarkerTranslationVector(index),
                           self.GetMarkerLength())
 
     def SetRotoTranslationVector(self):
