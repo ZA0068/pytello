@@ -297,11 +297,11 @@ class Arucodetector:
 
     def FindMarkers(self, image) -> tuple:
         self.corners, self.ids, self.rejected = cv.aruco.detectMarkers(
-            self.ConvertImageToGrayscale(image), 
-            self.GetDictionary(),
-            parameters=self.GetParameters(),
-            cameraMatrix = self.GetCameraMatrix(),
-            distCoeff = self.GetDistortionCoefficients())
+            image           = self.ConvertImageToGrayscale(image), 
+            dictionary      = self.GetDictionary(),
+            parameters      =self.GetParameters(),
+            cameraMatrix    = self.GetCameraMatrix(),
+            distCoeff       = self.GetDistortionCoefficients())
 
     def ConvertImageToGrayscale(self, image):
         return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
