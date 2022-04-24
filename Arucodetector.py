@@ -30,8 +30,6 @@ class Arucodetector:
         self.corners = None
         self.rejected = None
         self.rt_vec = None
-                
-# Setters
 
     def Setup(self):
         self.SetFlippedMatrix()
@@ -177,6 +175,28 @@ class Arucodetector:
     
     def GetClosestMarkerDistance(self):
         return 1
+    
+    def GetClosestMarkerId(self):
+        return self.ids
+    
+    def rotationMatrixToEulerAngles(self, R):
+        assert (self.isRotationMatrix(R))
+
+        sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+
+        singular = sy < 1e-6
+
+        if not singular:
+            x = math.atan2(R[2, 1], R[2, 2])
+            y = math.atan2(-R[2, 0], sy)
+            z = math.atan2(R[1, 0], R[0, 0])
+        else:
+            x = math.atan2(-R[1, 2], R[1, 1])
+            y = math.atan2(-R[2, 0], sy)
+            z = 0
+
+        return np.array([x, y, z])
+    
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -188,26 +208,51 @@ class Arucodetector:
     def IsMarkerDetected(self) -> bool:
         return self.GetMarkerIds() is not None
     
+    def isRotationMatrix(self, R):
+        Rt = np.transpose(R)
+        shouldBeIdentity = np.dot(Rt, R)
+        I = np.identidy(3, dtype=R.dtype)
+        n = np.linalg.norm(I - shouldBeIdentity)
+        return n < 1e-6
+    
     def ExitStream(self) -> bool:
         return self.GetKey() == 27 or self.GetKey() == ord('q')
     
     def GetRotoTranslationVector(self) -> np.array:
         return self.rt_vec
+
+    def GetTextString(self, name, coord, vec, index):
+        return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
+
+    def GetRotationVector(self, index) -> np.array:
+        return self.GetRotoTranslationVector()[0][index, 0, :]
     
-    def GetRotationVector(self, index, rpy) -> np.array:
-        return self.GetRotoTranslationVector()[0][index, 0, :][rpy]
-    
-    def GetTranslationVector(self, index, xyz) -> np.array:
-        return self.GetRotoTranslationVector()[1][index, 0, :][xyz]
+    def GetTranslationVector(self, index) -> np.array:
+        return self.GetRotoTranslationVector()[1][index, 0, :]
 
     def GetMarkerXPos(self, index) -> float:
-        return self.GetTranslationVector(index, 0) 
+        return self.GetTranslationVector(index)[0] 
     
     def GetMarkerYPos(self, index) -> float:
-        return self.GetTranslationVector(index, 1) 
+        return self.GetTranslationVector(index)[1]
 
     def GetMarkerZPos(self, index) -> float:
-        return self.GetTranslationVector(index, 2)
+        return self.GetTranslationVector(index)[2]
+
+    def GetMarkerPsi(self, index) -> float:
+        return self.GetEulerAngles(index)[0]
+    
+    def GetMarkerTheta(self, index) -> float:
+        return self.GetEulerAngles(index)[1]
+    
+    def GetMarkerPhi(self, index) -> float:
+        return self.GetEulerAngles(index)[2]    
+
+    def GetRotationMatrix(self, index) -> np.matrix:
+        return np.matrix(cv.Rodigues(self.GetRotationVector(index))[0]).T
+
+    def GetEulerAngles(self, index) -> np.array:
+        return self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index))
 
 # Others
 
@@ -249,7 +294,7 @@ class Arucodetector:
             self.SetRotoTranslationVector()
             for index in range(self.ids.size):
                   self.DrawAxesOnMarkers(index)
-                  self.DrawText()
+                  self.DrawText(index)
 
     def DrawText(self, index, Draw=True):
         if Draw:
@@ -270,8 +315,6 @@ class Arucodetector:
                    thickness = 2,
                    lineType = cv.LINE_AA)
 
-    def GetTextString(self, name, coord, vec, index):
-        return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index, 0), vec(index, 1), vec(index, 2))
 
     def DrawAxesOnMarkers(self, index):
         cv.aruco.drawAxis(self.GetImage(), 
@@ -285,7 +328,7 @@ class Arucodetector:
         self.rt_vec = self.EstimatePoseFromSingeMarker()
 
     def EstimatePoseFromSingeMarker(self):
-        return cv.aruco.estimatePoseSingleMarkers(self.GetCorners(),
+        return cv.aruco.estimatePoseSingleMarkers(self.GetMarkerCorners(),
                                                   self.GetMarkerLength(),
                                                   self.GetCameraMatrix(),
                                                   self.GetDistortionCoefficients())
