@@ -201,10 +201,12 @@ class Arucodetector:
 
     def GetMarkerRotationVector(self, index) -> np.array:
         if index < 0:
-            return self.GetRotoTranslationVector()[0]
+            return self.GetRotoTranslationVector()[0][:]
         return self.GetRotoTranslationVector()[0][index, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
+        if index < 0:
+            return self.GetRotoTranslationVector()[1][:]
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
     def GetMarkerXPosition(self, index = 0) -> float:
@@ -234,13 +236,22 @@ class Arucodetector:
     def GetCameraTranslationVector(self, index):
         return -self.GetRotationMatrix(index)*np.matrix(self.GetMarkerTranslationVector(index)).T
 
-    def GetCameraXPosition(self, index) -> float:
+    def GetCameraXPosition(self, index = 0) -> float:
         return self.GetCameraTranslationVector(index)[0]
     
-    def GetCameraYPosition(self, index) -> float:
+    def GetCameraYPosition(self, index = 1) -> float:
         return self.GetMarkerTranslationVector(index)[1]
 
-    def GetCameraZPosition(self, index) -> float:
+    def GetCameraZPosition(self, index = 2) -> float:
+        return self.GetCameraTranslationVector(index)[2]
+    
+    def GetCameraRoll(self, index = 0) -> float:
+        return self.GetCameraTranslationVector(index)[0]
+    
+    def GetCameraPitch(self, index = 1) -> float:
+        return self.GetMarkerTranslationVector(index)[1]
+
+    def GetCameraYaw(self, index = 2) -> float:
         return self.GetCameraTranslationVector(index)[2]
     
     def GetSpacing(self)-> int:

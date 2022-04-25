@@ -47,22 +47,19 @@ class TestArucodetector(unittest.TestCase):
         self.assertIsNotNone(self.testdetector.GetMarkerZPosition())
 
     def test_Find_marker_angles(self):
-        self.testdetector.Run() 
         self.assertIsNotNone(self.testdetector.GetMarkerPsi())
         self.assertIsNotNone(self.testdetector.GetMarkerTheta())
         self.assertIsNotNone(self.testdetector.GetMarkerPhi())
 
-#     def test_Find_camera_position(self):
-#         self.testdetector.Run() 
-#         self.assertIsNotNone(self.testdetector.GetCameraXPosition())
-#         self.assertIsNotNone(self.testdetector.GetCameraYPosition())
-#         self.assertIsNotNone(self.testdetector.GetCameraZPosition())
+    def test_Find_camera_position(self):
+        self.assertIsNotNone(self.testdetector.GetCameraXPosition())
+        self.assertIsNotNone(self.testdetector.GetCameraYPosition())
+        self.assertIsNotNone(self.testdetector.GetCameraZPosition())
 
-#     def test_Find_camera_angles(self):
-#         self.testdetector.Run() 
-#         self.assertIsNotNone(self.testdetector.GetCameraRoll())
-#         self.assertIsNotNone(self.testdetector.GetCameraPitch())
-#         self.assertIsNotNone(self.testdetector.GetCameraYaw())
+    def test_Find_camera_angles(self):
+        self.assertIsNotNone(self.testdetector.GetCameraRoll())
+        self.assertIsNotNone(self.testdetector.GetCameraPitch())
+        self.assertIsNotNone(self.testdetector.GetCameraYaw())
 
 # class TestDroneController(unittest.TestCase):
 #     def setUp(self):
