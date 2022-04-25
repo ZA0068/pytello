@@ -239,20 +239,20 @@ class Arucodetector:
     def GetCameraXPosition(self, index = 0) -> float:
         return self.GetCameraTranslationVector(index)[0]
     
-    def GetCameraYPosition(self, index = 1) -> float:
+    def GetCameraYPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[1]
 
-    def GetCameraZPosition(self, index = 2) -> float:
+    def GetCameraZPosition(self, index = 0) -> float:
         return self.GetCameraTranslationVector(index)[2]
     
     def GetCameraRoll(self, index = 0) -> float:
-        return self.GetCameraTranslationVector(index)[0]
+        return self.GetMarkerPsi(index)
     
-    def GetCameraPitch(self, index = 1) -> float:
-        return self.GetMarkerTranslationVector(index)[1]
+    def GetCameraPitch(self, index = 0) -> float:
+        return self.GetMarkerPhi(index)
 
-    def GetCameraYaw(self, index = 2) -> float:
-        return self.GetCameraTranslationVector(index)[2]
+    def GetCameraYaw(self, index = 0) -> float:
+        return self.GetMarkerTheta(index)
     
     def GetSpacing(self)-> int:
         return self.spacing
