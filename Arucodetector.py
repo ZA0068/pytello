@@ -216,13 +216,13 @@ class Arucodetector:
     def GetMarkerZPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[2]
 
-    def GetMarkerPsi(self, index) -> float:
+    def GetMarkerPsi(self, index = 0) -> float:
         return self.GetMarkerCameraEulerAngles(index)[0]
     
-    def GetMarkerTheta(self, index) -> float:
+    def GetMarkerTheta(self, index = 0) -> float:
         return self.GetMarkerCameraEulerAngles(index)[1]
     
-    def GetMarkerPhi(self, index) -> float:
+    def GetMarkerPhi(self, index = 0) -> float:
         return self.GetMarkerCameraEulerAngles(index)[2]    
 
     def GetRotationMatrix(self, index) -> np.matrix:
