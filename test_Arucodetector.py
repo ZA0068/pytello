@@ -42,9 +42,9 @@ class TestArucodetector(unittest.TestCase):
         self.assertIsNotNone(self.testdetector.GetClosestMarkerId())
 
     def test_Find_marker_pos_coordinates(self):
-        self.assertIsNotNone(self.testdetector.GetCameraXPosition())
-        # self.assertIsNotNone(self.testdetector.GetCameraYPosition())
-        # self.assertIsNotNone(self.testdetector.GetMarkerZPosition())
+        self.assertIsNotNone(self.testdetector.GetMarkerXPosition())
+        self.assertIsNotNone(self.testdetector.GetMarkerYPosition())
+        self.assertIsNotNone(self.testdetector.GetMarkerZPosition())
 
 #     def test_Find_marker_angles(self):
 #         self.testdetector.Run() 

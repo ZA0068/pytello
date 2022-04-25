@@ -190,7 +190,7 @@ class Arucodetector:
     
     def GetClosestMarker(self, select = 1):
         if self.IsMarkerDetected():
-            return self.FindSmallestValueAndIndex(self.GetMarkerZPos)[select]
+            return self.FindSmallestValueAndIndex(self.GetMarkerZPosition)[select]
         return None
     
     def GetRotoTranslationVector(self) -> np.array:
@@ -207,13 +207,13 @@ class Arucodetector:
     def GetMarkerTranslationVector(self, index) -> np.array:
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
-    def GetMarkerXPos(self, index = 0) -> float:
+    def GetMarkerXPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[0] 
     
-    def GetMarkerYPos(self, index = 0) -> float:
+    def GetMarkerYPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[1]
 
-    def GetMarkerZPos(self, index = 0) -> float:
+    def GetMarkerZPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[2]
 
     def GetMarkerPsi(self, index) -> float:
@@ -234,13 +234,13 @@ class Arucodetector:
     def GetCameraTranslationVector(self, index):
         return -self.GetRotationMatrix(index)*np.matrix(self.GetMarkerTranslationVector(index)).T
 
-    def GetCameraXPos(self, index) -> float:
+    def GetCameraXPosition(self, index) -> float:
         return self.GetCameraTranslationVector(index)[0]
     
-    def GetCameraYPos(self, index) -> float:
+    def GetCameraYPosition(self, index) -> float:
         return self.GetMarkerTranslationVector(index)[1]
 
-    def GetCameraZPos(self, index) -> float:
+    def GetCameraZPosition(self, index) -> float:
         return self.GetCameraTranslationVector(index)[2]
     
     def GetSpacing(self)-> int:
