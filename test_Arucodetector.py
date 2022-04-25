@@ -37,8 +37,6 @@ class TestArucodetector(unittest.TestCase):
 
 
     def test_FindClosestMarker(self):
-        print(self.testdetector.GetClosestMarkerDistance())
-        print(self.testdetector.GetClosestMarkerId())
         self.assertTrue(self.testdetector.IsMarkerDetected())
         self.assertGreater(self.testdetector.GetClosestMarkerDistance(), -1)
         self.assertIsNotNone(self.testdetector.GetClosestMarkerId())

@@ -183,11 +183,15 @@ class Arucodetector:
         return self.GetMarkerIds().size
     
     def GetClosestMarkerDistance(self):
-        return min(self.GetMarkerZPos(-1))
+        return self.GetClosestMarker(0)
     
     def GetClosestMarkerId(self):
-        return self.ids[np.argmin(self.GetMarkerZPos(-1))]
+        return self.GetClosestMarker(1)
     
+    def GetClosestMarker(self, select = 1):
+        if self.IsMarkerDetected():
+            return self.FindSmallestValueAndIndex(self.GetMarkerZPos)[select]
+        return None
     
     def GetRotoTranslationVector(self) -> np.array:
         return self.rt_vec
@@ -196,11 +200,11 @@ class Arucodetector:
         return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
 
     def GetMarkerRotationVector(self, index) -> np.array:
+        if index < 0:
+            return self.GetRotoTranslationVector()[0]
         return self.GetRotoTranslationVector()[0][index, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
-        if index < 0:
-            return self.GetRotoTranslationVector()[1][:, 0, :]
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
     def GetMarkerXPos(self, index = 0) -> float:
@@ -265,6 +269,15 @@ class Arucodetector:
     
 
 # Others
+
+    def FindSmallestValueAndIndex(self, function):
+        index = 0
+        minimum = function(index)
+        for i in range(self.GetMarkerIds().size-1):
+            if function(i+1) < minimum:
+                minimum = function(i+1)
+                index = i
+        return minimum, self.GetMarkerIds()[index]
 
     def rotationMatrixToEulerAngles(self, R):
         assert (self.isRotationMatrix(R))
