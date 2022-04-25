@@ -34,8 +34,8 @@ class Arucodetector:
         self.rt_vec = None
         self.spacing = None
         self.run_process = None
-        self.marker_detection_thread = None
-
+        self.controller = None
+        
     def Setup(self):
         self.SetFlippedMatrix()
         self.SetMarkerLength(10)
@@ -70,6 +70,8 @@ class Arucodetector:
 
     def SetSpacing(self, spacing):
         self.spacing = spacing
+
+    
 
     def SetParameters(self):
         self.parameters = cv.aruco.DetectorParameters_create()
@@ -260,12 +262,6 @@ class Arucodetector:
     def GetSpacing(self)-> int:
         return self.spacing
     
-    def GetStreamingProcess(self):
-        return self.run_process
-    
-    def GetDetectorThread(self):
-        return self.marker_detection_thread
-    
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -433,8 +429,7 @@ class Arucodetector:
 # Running processes and threads
 
     def Start(self):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            self.run_process = executor.submit(self.Run)
+        self.Run()
 
     def Run(self) -> None:
         if self.IsDroneConnected():
@@ -462,13 +457,13 @@ class Arucodetector:
 
     def DisplayImage(self, frame):
         self.SetImage(frame)
+        self.MarkerDetection()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
 
-    def MarkerThread(self):
-        while self.IsDroneStreaming():
-            self.FindMarkers(self.GetImage())
-            self.DrawDetectedMarkers()
+    def MarkerDetection(self):
+        self.FindMarkers(self.GetImage())
+        self.DrawDetectedMarkers()
 
 
     def SkipFrames(self) -> int:
