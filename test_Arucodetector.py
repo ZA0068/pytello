@@ -65,8 +65,8 @@ import av
 class TestDroneController(unittest.TestCase):
     def setUp(self):
         self.drone_controller = Arucodetector()
-        self.drone_controller.SetDrone()
-        self.drone_controller.CalibrateCamera()
+        self.drone_controller.Setup()
+        self.drone_controller.ConnectDrone()
         self.drone_controller.Start()
 
     def tearDown(self):
@@ -74,10 +74,8 @@ class TestDroneController(unittest.TestCase):
         print("testing are done \n")
 
     def test_SetDrone(self):
-        self.assertTrue(self.drone_controller.isconnected)
-        self.assertIsNotNone(self.drone_controller.cameraMatrix)
-        self.assertIsNotNone(self.drone_controller.distCoeffs)
-        self.assertTrue(self.drone_controller.isstreaming)
+        self.assertTrue(self.drone_controller.IsDroneConnected())
+        self.assertTrue(self.drone_controller.IsDroneStreaming())
 
     def test_Drone_controller_setup(self):
         self.drone_controller.SetController()

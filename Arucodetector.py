@@ -9,6 +9,7 @@ import av
 import time
 import tellopy
 import colorsys
+import concurrent.futures
 
 class Arucodetector:
     def __init__(self):
@@ -32,6 +33,8 @@ class Arucodetector:
         self.rejected = None
         self.rt_vec = None
         self.spacing = None
+        self.run_process = None
+        self.marker_detection_thread = None
 
     def Setup(self):
         self.SetFlippedMatrix()
@@ -257,6 +260,12 @@ class Arucodetector:
     def GetSpacing(self)-> int:
         return self.spacing
     
+    def GetStreamingProcess(self):
+        return self.run_process
+    
+    def GetDetectorThread(self):
+        return self.marker_detection_thread
+    
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -421,6 +430,11 @@ class Arucodetector:
     def DrawBoundingBoxesOnMarkers(self):
         cv.aruco.drawDetectedMarkers(self.GetImage(), self.GetMarkerCorners(), self.GetMarkerIds())
 
+# Running processes and threads
+
+    def Start(self):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            self.run_process = executor.submit(self.Run)
 
     def Run(self) -> None:
         if self.IsDroneConnected():
@@ -448,10 +462,13 @@ class Arucodetector:
 
     def DisplayImage(self, frame):
         self.SetImage(frame)
-        self.FindMarkers(self.GetImage())
-        self.DrawDetectedMarkers()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
+
+    def MarkerThread(self):
+        while self.IsDroneStreaming():
+            self.FindMarkers(self.GetImage())
+            self.DrawDetectedMarkers()
 
 
     def SkipFrames(self) -> int:
