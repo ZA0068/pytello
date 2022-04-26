@@ -11,6 +11,7 @@ import tellopy
 import colorsys
 import concurrent.futures
 from simpful import *
+import matplotlib.pyplot as plt
 
 class Arucodetector:
     def __init__(self):
@@ -79,8 +80,7 @@ class Arucodetector:
     def SetInputs(self):
         Input1 = FuzzySet(function=Gaussian_MF(3, 0.5), term = "slow", verbose = True)
         lv = LinguisticVariable(Input1, concept = "Lateral movement", universe_of_discourse = [-5, 5])
-        lv.plot()
-        self.controller.add_linguistic_variable("x",lv,verbose = True)
+        self.controller.add_linguistic_variable("x",lv, verbose = True)
         self.GetController()
         
     def SetController(self):
@@ -481,6 +481,15 @@ class Arucodetector:
         self.FindMarkers(self.GetImage())
         self.DrawDetectedMarkers()
 
+    def Plot(self, steps = 100):
+        self.controller._variables
+        stepsize = range(steps+1)
+        plt.plot(stepsize)
+        plt.ylim(0,1.05)
+        plt.xlabel("Time")
+        plt.ylabel("Level")
+        plt.legend(["LacI","TetR","CI"], loc="lower right",framealpha=1.0)
+        plt.show()
 
     def SkipFrames(self) -> int:
         self.SetFrameSkip(self.GetAmountFrameToSkip() - 1)
