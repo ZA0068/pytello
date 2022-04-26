@@ -1,5 +1,7 @@
+from typing_extensions import OrderedDict
 import unittest
 from Arucodetector import Arucodetector
+from Controller import DroneController
 import tellopy
 import simpful as fuzzy
 import av
@@ -64,18 +66,19 @@ import av
 
 class TestDroneController(unittest.TestCase):
     def setUp(self):
-        self.drone_controller = Arucodetector()
-        self.drone_controller.SetFuzzySystem()
+        self.drone_controller = DroneController()
+        self.drone_controller.Setup()
 
     def tearDown(self):
         self.drone_controller.End()
         print("testing are done \n")
-
+# 
     def test_Drone_controller_setup(self):
         controller = self.drone_controller.GetController()
         self.assertIsInstance(controller, fuzzy.FuzzySystem)
         self.assertNotEqual(controller._lvs.__len__(), 0)
-        # self.assertNotEqual(controller._crispvalues.__len__(), 0)
+        self.assertEqual(list(controller._lvs.keys()), ['x', 'y', 'z', 'theta'])
+        self.assertNotEqual(controller._crispvalues.__len__(), 0)
         # self.assertNotEqual(controller._rules.__len__(), 0)
 
     def test_Drone_controller_functionality(self):
