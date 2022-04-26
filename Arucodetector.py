@@ -79,7 +79,8 @@ class Arucodetector:
         
     def SetInputs(self):
         Input1 = FuzzySet(function=Gaussian_MF(3, 0.5), term = "slow", verbose = True)
-        lv = LinguisticVariable(Input1, concept = "Lateral movement", universe_of_discourse = [-5, 5])
+        lv = LinguisticVariable([Input1], concept = "Lateral movement", universe_of_discourse = [-5, 5])
+        lv.plot()
         self.controller.add_linguistic_variable("x",lv, verbose = True)
         self.GetController()
         
@@ -482,7 +483,7 @@ class Arucodetector:
         self.DrawDetectedMarkers()
 
     def Plot(self, steps = 100):
-        self.controller._variables
+        self.controller._variables.plot(steps)
         stepsize = range(steps+1)
         plt.plot(stepsize)
         plt.ylim(0,1.05)
