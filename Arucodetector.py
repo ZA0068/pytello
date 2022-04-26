@@ -10,7 +10,7 @@ import time
 import tellopy
 import colorsys
 import concurrent.futures
-from simpful import *
+import simpful as sf
 import matplotlib.pyplot as plt
 
 class Arucodetector:
@@ -78,14 +78,19 @@ class Arucodetector:
         self.SetInputs()
         
     def SetInputs(self):
-        Input1 = FuzzySet(function=Gaussian_MF(3, 0.5), term = "slow", verbose = True)
-        lv = LinguisticVariable([Input1], concept = "Lateral movement", universe_of_discourse = [-5, 5])
-        lv.plot()
-        self.controller.add_linguistic_variable("x",lv, verbose = True)
-        self.GetController()
+        Input_X = []
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(-90, 15), term = "Far left", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(-60, 15), term = "Left", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(-30, 15), term = "Slightly left", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 15), term = "center", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(30, 15), term = "Slightly right", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(60, 15), term = "Right", verbose = True))
+        Input_X.append(sf.FuzzySet(function=sf.Gaussian_MF(90, 15), term = "Far right", verbose = True))
+        lv_X = sf.LinguisticVariable(Input_X, concept = "Lateral movement", universe_of_discourse = [-100, 100])
+        self.GetController().add_linguistic_variable("x", lv_X, verbose = True)
         
     def SetController(self):
-        self.controller = FuzzySystem()
+        self.controller = sf.FuzzySystem()
 
     def SetParameters(self):
         self.parameters = cv.aruco.DetectorParameters_create()
@@ -183,7 +188,7 @@ class Arucodetector:
     def GetImage(self) -> np.array:
         return self.image
     
-    def GetController(self) -> FuzzySystem:
+    def GetController(self) -> sf.FuzzySystem:
         return self.controller
     
     def GetParameters(self):
