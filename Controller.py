@@ -12,7 +12,7 @@ class DroneController:
         self.SetController()
         self.SetInputs()
         self.SetOutputs()
-        
+        self.SetRules()
         
     def SetController(self):
         self.controller = sf.FuzzySystem()
@@ -73,7 +73,7 @@ class DroneController:
         Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "right", verbose = True))
         Outputs_X.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "hard right", verbose = True))
         lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("speed_x", lv_X, verbose = True)
+        self.GetController().add_linguistic_variable("velocity_x", lv_X, verbose = True)
         
         Outputs_Y = []
         Outputs_Y.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "ascend hard", verbose = True))
@@ -84,30 +84,41 @@ class DroneController:
         Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "descend", verbose = True))
         Outputs_Y.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "descend hard", verbose = True))
         lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("speed_y", lv_Y, verbose = True)
+        self.GetController().add_linguistic_variable("velocity_y", lv_Y, verbose = True)
     
     
         Outputs_Z = []
         Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast forward", verbose = True))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "forward", verbose = True))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "slow forward", verbose = True))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "nothing", verbose = True))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = True))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "slow reverse", verbose = True))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "reverse", verbose = True))
         Outputs_Z.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "fast reverse", verbose = True))
         lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("speed_z", lv_Z, verbose = True)
+        self.GetController().add_linguistic_variable("velocity_z", lv_Z, verbose = True)
     
         Outputs_Theta = []
         Outputs_Theta.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "turn hard right", verbose = True))
         Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "turn right", verbose = True))
         Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "turn slightly right", verbose = True))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "do not turn", verbose = True))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "no turn", verbose = True))
         Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "turn slightly left", verbose = True))
         Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "turn left", verbose = True))
         Outputs_Theta.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "turn hard left", verbose = True))
         lv_Theta = sf.LinguisticVariable(Outputs_Theta, concept = "Angular velocity in yaw(θ) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("speed_theta", lv_Theta, verbose = True)
+        self.GetController().add_linguistic_variable("angular_velocity_θ", lv_Theta, verbose = True)
+    
+    def SetRules(self):
+        Rule1 = "IF (x IS far left) THEN (velocity_x is hard right)"
+        Rule2 = "IF (x IS left) THEN (velocity_x is right)"
+        Rule3 = "IF (x IS slightly left) THEN (velocity_x is soft right)"
+        Rule4 = "IF (x IS center) THEN (velocity_x is stop)"
+        Rule5 = "IF (x IS slightly right) THEN (velocity_x is soft left)"
+        Rule6 = "IF (x IS right) THEN (velocity_x is left)"
+        Rule7 = "IF (x IS far right) THEN (velocity_x is hard left)"
+        self.GetController().add_rules(Rule1, Rule2, Rule3, Rule4, Rule5, Rule6, Rule7)
+        
     
     
     def GetController(self) -> sf.FuzzySystem:

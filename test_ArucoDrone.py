@@ -75,7 +75,7 @@ class TestDroneController(unittest.TestCase):
         controller = self.drone_controller.GetController()
         self.assertIsInstance(controller, fuzzy.FuzzySystem)
         self.assertNotEqual(controller._lvs.__len__(), 0)
-        # self.assertNotEqual(controller._rules.__len__(), 0)
+        self.assertNotEqual(controller._rules.__len__(), 0)
 
     def test_Drone_controller_functionality(self):
         self.drone_controller.SetX(0)
