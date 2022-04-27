@@ -70,15 +70,12 @@ class TestDroneController(unittest.TestCase):
         self.drone_controller.Setup()
 
     def tearDown(self):
-        self.drone_controller.End()
         print("testing are done \n")
 # 
     def test_Drone_controller_setup(self):
         controller = self.drone_controller.GetController()
         self.assertIsInstance(controller, fuzzy.FuzzySystem)
         self.assertNotEqual(controller._lvs.__len__(), 0)
-        self.assertEqual(list(controller._lvs.keys()), ['x', 'y', 'z', 'theta'])
-        self.assertNotEqual(controller._crispvalues.__len__(), 0)
         # self.assertNotEqual(controller._rules.__len__(), 0)
 
     def test_Drone_controller_functionality(self):

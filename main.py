@@ -3,13 +3,13 @@ import simpful as sf
 
 fs = sf.FuzzySystem()
 
-Input_Theta = []
-Input_Theta.append(sf.FuzzySet(function=sf.Crisp_MF(-70, -60), term = "far left", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(-60, 15), term = "left", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(-30, 15), term = "slightly left", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 15), term = "center", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(30, 15), term = "slightly right", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(60, 15), term = "right", verbose = True))
-Input_Theta.append(sf.FuzzySet(function=sf.Crisp_MF(60, 70), term = "far right", verbose = True))
-lv_Theta = sf.LinguisticVariable(Input_Theta, concept = "Difference in marker angle in yaw/theta axis", universe_of_discourse = [-70, 70])
-lv_Theta.plot(outputfile = "Yaw Angle(Theta).png")
+Input_Z = []
+Input_Z.append(sf.FuzzySet(function=sf.Sigmoid_MF(50, 1), term = "too far", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(40, 5), term = "far", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(35, 5), term = "slightly far", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(30, 5), term = "perfect", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(25, 5), term = "slightly below", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(20, 5), term = "close", verbose = True))
+Input_Z.append(sf.FuzzySet(function=sf.InvSigmoid_MF(10, 0.8), term = "too close", verbose = True))
+lv_X = sf.LinguisticVariable(Input_Z, concept = "Difference in marker distance in longittual axis", universe_of_discourse = [0, 60])
+lv_X.plot(outputfile = "Longitual Position(Z).png")
