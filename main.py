@@ -2,14 +2,13 @@
 import simpful as sf
 
 fs = sf.FuzzySystem()
-
-Input_Z = []
-Input_Z.append(sf.FuzzySet(function=sf.Sigmoid_MF(50, 1), term = "too far", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(40, 5), term = "far", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(35, 5), term = "slightly far", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(30, 5), term = "perfect", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(25, 5), term = "slightly below", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(20, 5), term = "close", verbose = True))
-Input_Z.append(sf.FuzzySet(function=sf.InvSigmoid_MF(10, 0.8), term = "too close", verbose = True))
-lv_X = sf.LinguisticVariable(Input_Z, concept = "Difference in marker distance in longittual axis", universe_of_discourse = [0, 60])
-lv_X.plot(outputfile = "Longtitual Position(Z).png")
+Outputs_Theta = []
+Outputs_Theta.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "turn hard right", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "turn right", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "turn slightly right", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "do not turn", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "turn slightly left", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "turn left", verbose = True))
+Outputs_Theta.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "turn hard left", verbose = True))
+lv_Theta = sf.LinguisticVariable(Outputs_Theta, concept = "Angular velocity in yaw(θ) axis", universe_of_discourse = [-1.0, 1.0])
+lv_Theta.plot(outputfile = "Yaw Angular Velocity(θ').png")
