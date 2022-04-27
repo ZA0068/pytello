@@ -1,4 +1,3 @@
-from typing_extensions import OrderedDict
 import unittest
 from Arucodetector import Arucodetector
 from Controller import DroneController
