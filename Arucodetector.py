@@ -488,15 +488,11 @@ class Arucodetector:
         return self.GetAmountFrameToSkip() > 0
 
     def End(self) -> None:
-        try:
-            self.DeleteCameraCalibration()
-            self.Land()
-            self.DisconnectDrone()
-            self.StopStream()
-        except Exception as ex:
-            self.Exception(ex)
-        finally:
-            return "Complete!"
+        self.DeleteCameraCalibration()
+        self.Land()
+        self.StopStream()
+        self.DisconnectDrone()
+        return "Complete!"
 
     def Land(self) -> None:
         if self.is_flying: 

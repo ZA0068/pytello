@@ -143,7 +143,6 @@ class TestDroneControllerLive(unittest.TestCase):
         self.returner = self.drone.Run()
         
     def tearDown(self):
-        # self.drone.GetDetector().End()
         print('Testing are done.')
 
     def test_Drone_Live(self):
@@ -154,6 +153,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsNotNone(self.drone.GetDetector().GetClosestMarker())
         
     def test_Drone_Live_X(self):
+        self.assertTrue(self.drone.GetDetector().IsDroneStreaming())
         self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraX(), 0.0, delta = 2)
         # self.assertAlmostEqual(self.drone.ControlX(), 0.0, delta = 2)
         

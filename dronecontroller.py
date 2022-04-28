@@ -33,7 +33,7 @@ class ArucoTelloController():
     #         self.GetDetector().is_flying = True
     
     def Run(self):
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
         return self.detectorprocessor.result()
         
