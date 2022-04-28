@@ -79,7 +79,7 @@ class TestDroneController(unittest.TestCase):
         self.assertNotEqual(controller._lvs.__len__(), 0)
         self.assertNotEqual(controller._rules.__len__(), 0)
 
-    def test_Drone_controller_functionality(self):
+    def test_Drone_controller_functionality_center(self):
         self.drone_controller.SetX(0)
         self.assertEqual(self.drone_controller.GetX() ,0.0)
         self.drone_controller.SetY(0)
@@ -89,43 +89,46 @@ class TestDroneController(unittest.TestCase):
         self.drone_controller.SetTheta(0)
         self.assertEqual(self.drone_controller.GetTheta() , 0.0)
 
-    def test_Drone_controller_functionality_extremes(self):
+    def test_Drone_controller_functionality_variants(self):
         self.drone_controller.SetX(10)
-        self.assertNotEqual(self.drone_controller.GetX() , 0.0)
-        # self.drone_controller.SetY(10)
-        # self.assertEqual(self.drone_controller.GetY() , 40.0)
-        # self.drone_controller.SetZ(20)
-        # self.assertEqual(self.drone_controller.GetZ() , -40.0)
-        # self.drone_controller.SetTheta(10)
-        # self.assertEqual(self.drone_controller.GetTheta() , 18.0)
-
+        self.assertEqual(self.drone_controller.GetX() , 0.13)
         self.drone_controller.SetX(-10)
-        self.assertEqual(self.drone_controller.GetX() , -40.0)
+        self.assertEqual(self.drone_controller.GetX() , -0.13)
+        
+        self.drone_controller.SetY(10)
+        self.assertEqual(self.drone_controller.GetY() , -0.13)
         self.drone_controller.SetY(-10)
-        self.assertEqual(self.drone_controller.GetY() , -40.0)
+        self.assertEqual(self.drone_controller.GetY() , 0.13)
+        
+        self.drone_controller.SetZ(20)
+        self.assertEqual(self.drone_controller.GetZ() , -0.47)
         self.drone_controller.SetZ(40)
-        self.assertEqual(self.drone_controller.GetZ() , 40.0)
+        self.assertEqual(self.drone_controller.GetZ() , 0.47)
+     
+        self.drone_controller.SetTheta(10)
+        self.assertEqual(self.drone_controller.GetTheta() , -0.13)
         self.drone_controller.SetTheta(-10)
-        self.assertEqual(self.drone_controller.GetTheta() , -18.0)
+        self.assertEqual(self.drone_controller.GetTheta() , 0.13)
 
-    def test_Drone_controller_functionality_beyondlimit(self):
-        self.drone_controller.SetX(50)
-        self.assertEqual(self.drone_controller.GetX() , 40.0)
-        self.drone_controller.SetY(50)
-        self.assertEqual(self.drone_controller.GetY() , 40.0)
-        self.drone_controller.SetZ(15)
-        self.assertEqual(self.drone_controller.GetZ() , -40.0)
+
+    def test_Drone_controller_functionality_extreme(self):
+        self.drone_controller.SetX(100)
+        self.assertEqual(self.drone_controller.GetX() , 0.9)
+        self.drone_controller.SetY(100)
+        self.assertEqual(self.drone_controller.GetY() , -0.9)
+        self.drone_controller.SetZ(60)
+        self.assertEqual(self.drone_controller.GetZ() , 0.93)
         self.drone_controller.SetTheta(70)
-        self.assertEqual(self.drone_controller.GetTheta() , 40.0)
+        self.assertEqual(self.drone_controller.GetTheta() , -0.73)
 
-        self.drone_controller.SetX(-50)
-        self.assertEqual(self.drone_controller.GetX() , -40.0)
-        self.drone_controller.SetY(-50)
-        self.assertEqual(self.drone_controller.GetY() , -40.0)
-        self.drone_controller.SetZ(100)
-        self.assertEqual(self.drone_controller.GetZ() , 40.0)
+        self.drone_controller.SetX(-100)
+        self.assertEqual(self.drone_controller.GetX() , -0.9)
+        self.drone_controller.SetY(-100)
+        self.assertEqual(self.drone_controller.GetY() , 0.9)
+        self.drone_controller.SetZ(-60)
+        self.assertEqual(self.drone_controller.GetZ() , -0.93)
         self.drone_controller.SetTheta(-70)
-        self.assertEqual(self.drone_controller.GetTheta() , -40.0)
+        self.assertEqual(self.drone_controller.GetTheta() , 0.73)
 
 # class TestDroneControllerLive(unittest.TestCase):
 

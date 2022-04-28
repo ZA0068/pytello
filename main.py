@@ -12,4 +12,4 @@ Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(25, 5), term = "slightly clos
 Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(20, 5), term = "close", verbose = True))
 Input_Z.append(sf.FuzzySet(function=sf.InvSigmoid_MF(10, 0.8), term = "too close", verbose = True))
 lv_X = sf.LinguisticVariable(Input_Z, concept = "Difference in marker distance in longittual axis", universe_of_discourse = [0, 60])
-lv_X.plot(outputfile = "Longtitual Position(Z).png")
+lv_X.plot(outputfile = "Longitual Position(Z).png")
