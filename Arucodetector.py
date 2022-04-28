@@ -31,6 +31,7 @@ class Arucodetector:
         self.rt_vec = None
         self.spacing = None
         self.run_process = None
+        self.is_flying = False
         
     def Setup(self):
         self.SetFlippedMatrix()
@@ -184,8 +185,27 @@ class Arucodetector:
     def GetClosestMarkerDistance(self):
         return self.GetClosestMarker(0)
     
-    def GetClosestMarkerId(self):
+    def GetClosestMarkerIndex(self):
         return self.GetClosestMarker(1)
+    
+    def GetClosestMarkerId(self):
+        return self.GetMarkerIds()[self.GetClosestMarkerIndex()]
+    
+    def GetClosestMarkerByCameraDistance(self):
+        return self.GetClosestMarkerByCamera(0)
+    
+    def GetClosestMarkerByCameraIndex(self):
+        return self.GetClosestMarkerByCamera(1)
+    
+    def GetClosestMarkerByCamera(self, select = 1):
+        if self.IsMarkerDetected():
+            return self.FindSmallestValueAndIndex(self.GetCameraZPosition)[select]
+        return None
+    
+    def GetClosestMarkerByCameraX(self):
+        if self.GetClosestMarkerByCameraIndex() is not None:
+            return self.GetCameraXPosition(self.GetClosestMarkerByCameraIndex())
+        return None
     
     def GetClosestMarker(self, select = 1):
         if self.IsMarkerDetected():
@@ -227,12 +247,16 @@ class Arucodetector:
         return self.GetMarkerCameraEulerAngles(index)[2]    
 
     def GetRotationMatrix(self, index) -> np.matrix:
+        if self.GetMarkerIds() is None:
+            return None
         return np.matrix(cv.Rodrigues(self.GetMarkerRotationVector(index))[0]).T
 
     def GetMarkerCameraEulerAngles(self, index) -> np.array:
         return np.rad2deg(self.rotationMatrixToEulerAngles(self.GetFlippedMatrix()*self.GetRotationMatrix(index)))
 
     def GetCameraTranslationVector(self, index):
+        if self.GetMarkerIds() is None:
+            return None
         return -self.GetRotationMatrix(index)*np.matrix(self.GetMarkerTranslationVector(index)).T
 
     def GetCameraXPosition(self, index = 0) -> float:
@@ -287,7 +311,7 @@ class Arucodetector:
             if function(i+1) < minimum:
                 minimum = function(i+1)
                 index = i
-        return minimum, self.GetMarkerIds()[index]
+        return minimum, index
 
     def rotationMatrixToEulerAngles(self, R):
         assert (self.isRotationMatrix(R))
@@ -466,12 +490,18 @@ class Arucodetector:
     def End(self) -> None:
         try:
             self.DeleteCameraCalibration()
+            self.Land()
             self.DisconnectDrone()
             self.StopStream()
         except Exception as ex:
             self.Exception(ex)
         finally:
             return "Complete!"
+
+    def Land(self) -> None:
+        if self.is_flying: 
+            self.GetDrone.land()
+            self.is_flying = False
 
     def StopStream(self) -> None:
         if self.IsDroneStreaming():

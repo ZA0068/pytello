@@ -27,8 +27,13 @@ class ArucoTelloController():
     def GetController(self):
         return self.dronecontroller
     
+    # def Fly(self, takeoff=True):
+    #     if takeoff:
+    #         self.GetDetector().GetDrone().takeoff()
+    #         self.GetDetector().is_flying = True
+    
     def Run(self):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
         return self.detectorprocessor.result()
         

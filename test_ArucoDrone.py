@@ -133,26 +133,29 @@ import unittest
         # self.assertEqual(self.drone_controller.GetTheta() , 0.73)
 
 from dronecontroller import ArucoTelloController
+
 class TestDroneControllerLive(unittest.TestCase):
+
     def setUp(self):
         print("testing the drone live")
-        self.testdetector = ArucoTelloController()
-        self.testdetector.Setup()
-        self.returner = self.testdetector.Run()
+        self.drone = ArucoTelloController()
+        self.drone.Setup()
+        self.returner = self.drone.Run()
         
     def tearDown(self):
+        # self.drone.GetDetector().End()
         print('Testing are done.')
 
     def test_Drone_Live(self):
         self.assertEqual(self.returner, "Complete!")
         
-#     def test_Drone_Live_Marker(Self):
-#         self.assertTrue(self.drone_controller.IsMarkerDetected())
-#         self.assertTrue(self.drone_controller.FindClosestMarker())
+    def test_Drone_Live_Marker(self):
+        self.assertTrue(self.drone.GetDetector().IsMarkerDetected())
+        self.assertIsNotNone(self.drone.GetDetector().GetClosestMarker())
         
-#     def test_Drone_Live_X(self):
-#         self.assertAlmostEqual(self.drone_controller.GetClosestCameraX(), 0.0, delta = 2)
-#         self.assertAlmostEqual(self.drone_controller.ControlX(), 0.0, delta = 2)
+    def test_Drone_Live_X(self):
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraX(), 0.0, delta = 2)
+        # self.assertAlmostEqual(self.drone.ControlX(), 0.0, delta = 2)
         
 #     def test_Drone_Live_Y(self):
 #         self.assertAlmostEqual(self.drone_controller.GetClosestCameraY(), 0.0, delta = 2)
