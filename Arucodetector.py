@@ -8,6 +8,7 @@ import av
 import time
 import tellopy
 import colorsys
+import threading
 class Arucodetector:
     def __init__(self):
         self.marker_size: int = 0
@@ -196,6 +197,9 @@ class Arucodetector:
     
     def GetClosestMarkerByCameraIndex(self):
         return self.GetClosestMarkerByCamera(1)
+
+    def GetClosestMarkerByCameraId(self):
+        return self.GetMarkerIds()[self.GetClosestMarkerByCameraIndex()]
     
     def GetClosestMarkerByCamera(self, select = 1):
         if self.IsMarkerDetected():
@@ -451,12 +455,15 @@ class Arucodetector:
 
     def Run(self) -> None:
         if self.IsDroneConnected():
+            lock = threading.Lock()
             self.SetArucoDictionaryForDetector()
             self.SetFrameSkip(300)
             for frame in self.GetContainer().decode(video=0):
                 if self.SkipFrames():
                     continue
+                lock.acquire()
                 self.Stream(frame)
+                lock.release()
                 if self.ExitStream():
                     return self.End()
    
