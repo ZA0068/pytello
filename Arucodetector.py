@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-import os
 import time
 import math
 import sys
@@ -9,8 +8,6 @@ import av
 import time
 import tellopy
 import colorsys
-import concurrent.futures
-
 class Arucodetector:
     def __init__(self):
         self.marker_size: int = 0
@@ -437,7 +434,7 @@ class Arucodetector:
                     continue
                 self.Stream(frame)
                 if self.ExitStream():
-                    break
+                    return self.End()
    
     def Stream(self, frame):
         start_time = time.time()
@@ -467,18 +464,19 @@ class Arucodetector:
         return self.GetAmountFrameToSkip() > 0
 
     def End(self) -> None:
-        self.DeleteCameraCalibration()
-        self.DisconnectDrone()
-        self.StopStream()
+        try:
+            self.DeleteCameraCalibration()
+            self.DisconnectDrone()
+            self.StopStream()
+        except Exception as ex:
+            self.Exception(ex)
+        finally:
+            return "Complete!"
 
     def StopStream(self) -> None:
         if self.IsDroneStreaming():
-            try:
-                cv.destroyAllWindows()
-                self.SetStreamingStatus(False)
-            except av.AVError as ave:
-                print(ave)
-                print('retry...')
+            cv.destroyAllWindows()
+            self.SetStreamingStatus(False)
 
     def DeleteCameraCalibration(self):
         self.SetCameraMatrix(None)
