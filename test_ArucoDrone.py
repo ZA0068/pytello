@@ -64,8 +64,10 @@ import av
 #         self.assertIsNotNone(self.testdetector.GetCameraYaw())
 
 class TestDroneController(unittest.TestCase):
+    
     def setUp(self):
         self.drone_controller = DroneController()
+        self.drone_controller.SetLog()
         self.drone_controller.Setup()
 
     def tearDown(self):
@@ -84,8 +86,8 @@ class TestDroneController(unittest.TestCase):
         self.assertEqual(self.drone_controller.GetY() , 0.0)
         self.drone_controller.SetZ(30)
         self.assertEqual(self.drone_controller.GetZ() , 0.0)
-        self.drone_controller.SetΘ(0)
-        self.assertEqual(self.drone_controller.GetΘ() , 0.0)
+        self.drone_controller.SetTheta(0)
+        self.assertEqual(self.drone_controller.GetTheta() , 0.0)
 
     def test_Drone_controller_functionality_extremes(self):
         self.drone_controller.SetX(10)

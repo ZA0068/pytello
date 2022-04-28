@@ -115,7 +115,7 @@ class DroneController:
     def SetRules(self):
         Rule = []
         Rule.append("IF (x IS far_left) THEN (velocity_x IS hard_right)")
-        Rule.append("IF (x IS left) THEN (velocity_x is right)")
+        Rule.append("IF (x IS left) THEN (velocity_x IS right)")
         Rule.append("IF (x IS slightly_left) THEN (velocity_x IS soft_right)")
         Rule.append("IF (x IS center) THEN (velocity_x IS stop)")
         Rule.append("IF (x IS slightly_right) THEN (velocity_x IS soft_left)")
@@ -149,7 +149,7 @@ class DroneController:
         self.GetController().add_rules(Rule, verbose=self.GetLog())
         
     def SetVar(self, name, value):
-        self.GetController().set_variable(name, value)
+        self.GetController().set_variable(name, value, verbose=self.GetLog())
         
     def SetX(self, x):
         self.SetVar("x", x)
@@ -168,7 +168,7 @@ class DroneController:
         return self.controller
 
     def GetX(self):
-        print(self.GetController().inference())
+        print(self.GetController().inference(["velocity_x"]))
         return 0.0 
     
     def GetY(self):
