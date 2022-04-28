@@ -15,6 +15,7 @@ class ArucoTelloController():
     def SetDetector(self):
         self.arucodetector = Arucodetector()
         self.arucodetector.Setup()
+        self.arucodetector.ConnectDrone()
     
     def SetController(self):
         self.dronecontroller = DroneController()
