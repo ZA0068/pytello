@@ -131,18 +131,18 @@ import av
         # self.assertEqual(self.drone_controller.GetTheta() , 0.73)
 
 class TestDroneControllerLive(unittest.TestCase):
-# 
+    
     def setUp(self):
-        self.drone_controller = Arucodetector()
-        self.drone_controller.SetDrone()
-        self.drone_controller.CalibrateCamera()
-        self.drone_controller.SetController()
-        self.drone_controller.Start()
-# 
+        self.testdetector = Arucodetector()
+        self.testdetector.Setup()
+        self.testdetector.ConnectDrone()
+        self.testdetector.Run()
+
     def tearDown(self):
-        self.drone_controller.End()
-        print("testing are done \n")
-# 
+        self.testdetector.End()
+        del self.testdetector
+        print('Testing are done.')
+
     def test_Drone_Live(self):
         self.drone_controller.Run()
         self.assertTrue(self.drone_controller.IsMarkerDetected())
