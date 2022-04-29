@@ -283,6 +283,13 @@ class Arucodetector:
     def GetSpacing(self)-> int:
         return self.spacing
     
+    def GetVelocity(self, function):
+        elapsed = time.time()
+        vel1 = float(function())
+        time.sleep(0.01)
+        vel2 = float(function())
+        return (vel2 - vel1)/(time.time() - elapsed)*100
+    
 # Boolean
 
     def IsDroneConnected(self) -> bool:

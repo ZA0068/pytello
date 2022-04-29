@@ -49,21 +49,29 @@ class ArucoTelloController():
         self.GetController().SetTheta(input)
         return self.GetController().GetTheta()
     
-    def GetVelocityX(self, input):
-        return input
+    def GetVelocity(self, function):
+        return self.GetDetector().GetVelocity(function)
     
-    def GetVelocityY(self, input):
-        return input
+    def GetVelocityX(self):
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraX)
     
-    def GetVelocityZ(self, input):
-        return input
+    def GetVelocityY(self):
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraY)
     
-    def GetVelocityTheta(self, input):
-        return input
+    def GetVelocityZ(self):
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraZ)
+    
+    def GetVelocityTheta(self):
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraTheta)
+    
+    def UpdateVelocity(self):
+        while self.GetDetector().IsDroneStreaming():
+            print(self.GetVelocityX())
     
     def Run(self):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
+            self.velocity_updater = executor.submit(self.UpdateVelocity)
         return self.detectorprocessor.result()
     
     def End(self):
