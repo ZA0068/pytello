@@ -192,25 +192,23 @@ class Arucodetector:
     def GetClosestMarkerId(self):
         return self.GetMarkerIds()[self.GetClosestMarkerIndex()]
     
-    def GetClosestMarkerByCameraX(self):
+    def GetClosestMarkerByCamera(self, function):
         if self.IsMarkerDetected():
-            return self.GetCameraXPosition(self.GetClosestMarkerIndex())
+            return function(self.GetClosestMarkerIndex())
         return None
+        
+    def GetClosestMarkerByCameraX(self):
+        return self.GetClosestMarkerByCamera(self.GetCameraXPosition)
 
     def GetClosestMarkerByCameraY(self):
-        if self.IsMarkerDetected():
-            return self.GetCameraYPosition(self.GetClosestMarkerIndex())
-        return None
+        return self.GetClosestMarkerByCamera(self.GetCameraYPosition)
 
     def GetClosestMarkerByCameraZ(self):
-        if self.IsMarkerDetected():
-            return self.GetCameraZPosition(self.GetClosestMarkerIndex())
-        return None
+        return self.GetClosestMarkerByCamera(self.GetCameraZPosition)
 
     def GetClosestMarkerByCameraTheta(self):
-        if self.IsMarkerDetected():
-            return self.GetCameraYaw(self.GetClosestMarkerIndex())
-        return None
+        return self.GetClosestMarkerByCamera(self.GetCameraYaw)
+
 
     def GetClosestMarker(self, select = 1):
         if self.IsMarkerDetected():

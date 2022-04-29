@@ -167,27 +167,18 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertAlmostEqual(self.drone.ControlZ(self.drone.GetDetector().GetClosestMarkerByCameraZ()), 0.0, delta = 2)
     
 
-#     def test_Drone_Live_Theta(self):
-#         self.drone_controller.Run()
-#         self.assertTrue(self.drone_controller.IsMarkerDetected())
-#         self.assertTrue(self.drone_controller.FindClosestMarker())
-#         self.assertAlmostEqual(self.drone_controller.GetClosestCameraYaw(), 0.0, delta = 2)
-#         self.assertAlmostEqual(self.drone_controller.ControlYaw(), 0, delta = 2)
-# # 
-#     def test_Drone_Live_Concurrency(self):
-#         self.drone_controller.Run()
-#         self.assertTrue(self.drone_controller.IsMarkerDetected())
-#         self.assertTrue(self.drone_controller.FindClosestMarker())
-# # 
-#     def test_Drone_Live_Velocity(self):
-#         self.drone_controller.Run()
-#         self.assertIsInstance(self.drone_controller.GetVelocityX(0), int)
-#         self.assertIsInstance(self.drone_controller.GetVelocityY(0), int)
-#         self.assertIsInstance(self.drone_controller.GetVelocityZ(0), int)
-#         self.assertIsInstance(self.drone_controller.GetVelocityTheta(0), int)
-# # 
-# # 
-# # 
+    def test_Drone_Live_Theta(self):
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraTheta(), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.ControlTheta(self.drone.GetDetector().GetClosestMarkerByCameraTheta()), 0.0, delta = 2)
+
+ 
+    def test_Drone_Live_Velocity(self):
+        self.assertIsInstance(self.drone.GetVelocityX(0.0), float)
+        self.assertIsInstance(self.drone.GetVelocityY(0.0), float)
+        self.assertIsInstance(self.drone.GetVelocityZ(0.0), float)
+        self.assertIsInstance(self.drone.GetVelocityTheta(0.0), float)
+
+
 #     def test_Drone_Live_Flight(self):
 #         self.drone_controller.Run(False)
 #         self.assertTrue(self.drone_controller.IsMarkerDetected())

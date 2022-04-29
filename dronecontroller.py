@@ -49,11 +49,23 @@ class ArucoTelloController():
         self.GetController().SetTheta(input)
         return self.GetController().GetTheta()
     
+    def GetVelocityX(self, input):
+        return input
+    
+    def GetVelocityY(self, input):
+        return input
+    
+    def GetVelocityZ(self, input):
+        return input
+    
+    def GetVelocityTheta(self, input):
+        return input
+    
     def Run(self):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
         return self.detectorprocessor.result()
     
     def End(self):
-        # os.system("taskkill /f /im python.exe")    
+        os.system("netstat -ano | findstr :9000")    
         return "Ended"                
