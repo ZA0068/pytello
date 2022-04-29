@@ -1,5 +1,6 @@
 from Arucodetector import Arucodetector
 from Controller import DroneController
+import os
 import concurrent.futures
 
 class ArucoTelloController():
@@ -52,5 +53,7 @@ class ArucoTelloController():
         with concurrent.futures.ThreadPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
         return self.detectorprocessor.result()
-        
-                    
+    
+    def End(self):
+        # os.system("taskkill /f /im python.exe")    
+        return "Ended"                

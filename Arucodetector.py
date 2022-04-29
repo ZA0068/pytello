@@ -192,25 +192,26 @@ class Arucodetector:
     def GetClosestMarkerId(self):
         return self.GetMarkerIds()[self.GetClosestMarkerIndex()]
     
-    def GetClosestMarkerByCameraDistance(self):
-        return self.GetClosestMarkerByCamera(0)
-    
-    def GetClosestMarkerByCameraIndex(self):
-        return self.GetClosestMarkerByCamera(1)
-
-    def GetClosestMarkerByCameraId(self):
-        return self.GetMarkerIds()[self.GetClosestMarkerByCameraIndex()]
-    
-    def GetClosestMarkerByCamera(self, select = 1):
-        if self.IsMarkerDetected():
-            return self.FindSmallestValueAndIndex(self.GetCameraZPosition)[select]
-        return None
-    
     def GetClosestMarkerByCameraX(self):
-        if self.GetClosestMarkerByCameraIndex() is not None:
-            return self.GetCameraXPosition(self.GetClosestMarkerByCameraIndex())
+        if self.IsMarkerDetected():
+            return self.GetCameraXPosition(self.GetClosestMarkerIndex())
         return None
-    
+
+    def GetClosestMarkerByCameraY(self):
+        if self.IsMarkerDetected():
+            return self.GetCameraYPosition(self.GetClosestMarkerIndex())
+        return None
+
+    def GetClosestMarkerByCameraZ(self):
+        if self.IsMarkerDetected():
+            return self.GetCameraZPosition(self.GetClosestMarkerIndex())
+        return None
+
+    def GetClosestMarkerByCameraTheta(self):
+        if self.IsMarkerDetected():
+            return self.GetCameraYaw(self.GetClosestMarkerIndex())
+        return None
+
     def GetClosestMarker(self, select = 1):
         if self.IsMarkerDetected():
             return self.FindSmallestValueAndIndex(self.GetMarkerZPosition)[select]
@@ -267,7 +268,7 @@ class Arucodetector:
         return self.GetCameraTranslationVector(index)[0]
     
     def GetCameraYPosition(self, index = 0) -> float:
-        return self.GetMarkerTranslationVector(index)[1]
+        return self.GetCameraTranslationVector(index)[1]
 
     def GetCameraZPosition(self, index = 0) -> float:
         return self.GetCameraTranslationVector(index)[2]
