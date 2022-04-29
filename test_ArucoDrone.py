@@ -163,7 +163,7 @@ class TestDroneControllerLive(unittest.TestCase):
 
  
     def test_Drone_Live_Z(self):
-        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraZ(), .0, delta = 2)
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraZ(), 30.0, delta = 2)
         self.assertAlmostEqual(self.drone.ControlZ(self.drone.GetDetector().GetClosestMarkerByCameraZ()), 0.0, delta = 2)
     
 
