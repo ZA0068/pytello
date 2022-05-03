@@ -33,6 +33,8 @@ class Arucodetector:
         self.spacing = None
         self.run_process = None
         self.is_flying = False
+        self.lock = threading.Lock()
+        self.is_connection_failed = False
         
     def Setup(self):
         self.SetFlippedMatrix()
@@ -285,11 +287,15 @@ class Arucodetector:
     
     def GetVelocity(self, function):
         elapsed = time.time()
-        vel1 = float(function())
+        vel1 = function()
         time.sleep(0.01)
-        vel2 = float(function())
-        return (vel2 - vel1)/(time.time() - elapsed)*100
+        vel2 = function()
+        if vel1 != None and vel2 != None:
+            return round((vel2[0,0]- vel1[0,0])/(time.time() - elapsed),2)
+        return 0.0
     
+    def GetConnectionFailureFlag(self):
+        return self.is_connection_failed
 # Boolean
 
     def IsDroneConnected(self) -> bool:
@@ -356,6 +362,10 @@ class Arucodetector:
             self.SetConnectionStatus(True)
         except Exception as ex:
             self.Exception(ex)
+            self.SetConnectionErrorFlag(True)
+
+    def SetConnectionErrorFlag(self, flag):
+        self.is_connection_failed = flag
 
     def Exception(self, ex):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -461,15 +471,14 @@ class Arucodetector:
 
     def Run(self) -> None:
         if self.IsDroneConnected():
-            lock = threading.Lock()
             self.SetArucoDictionaryForDetector()
             self.SetFrameSkip(300)
             for frame in self.GetContainer().decode(video=0):
                 if self.SkipFrames():
                     continue
-                lock.acquire()
+                self.lock.acquire()
                 self.Stream(frame)
-                lock.release()
+                self.lock.release()
                 if self.ExitStream():
                     return self.End()
    
@@ -522,7 +531,7 @@ class Arucodetector:
         self.SetDistortionCoefficients(None)
 
     def DisconnectDrone(self) -> None:
-        if self.IsDroneConnected():
+        if self.IsDroneConnected() and not self.GetConnectionFailureFlag():
             self.GetDrone().quit()
             self.SetDrone(None)
             self.SetConnectionStatus(False)

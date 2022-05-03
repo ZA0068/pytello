@@ -1,13 +1,17 @@
 from Arucodetector import Arucodetector
 from Controller import DroneController
 import os
+import time
 import concurrent.futures
-
+import psutil
+import sys
 class ArucoTelloController():
     def __init__(self):
         self.arucodetector = None
         self.dronecontroller = None
         self.detectorprocessor = None
+        self.velocitythread = None
+        self.pid = -1
         
     def Setup(self):
         self.SetDetector()
@@ -66,14 +70,55 @@ class ArucoTelloController():
     
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
-            print(self.GetVelocityX())
+            if self.GetDetector().IsMarkerDetected():
+                print(self.GetVelocityX())
+            time.sleep(0.01)
+        return 0
     
     def Run(self):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
-            self.velocity_updater = executor.submit(self.UpdateVelocity)
-        return self.detectorprocessor.result()
+            self.velocitythread = executor.submit(self.UpdateVelocity)
+        return self.detectorprocessor.result() , self.velocitythread.result()
     
     def End(self):
-        os.system("netstat -ano | findstr :9000")    
-        return "Ended"                
+        if self.GetDetector().IsDroneConnected():
+            self.StopStreamingDrone()
+        return "Ended"
+
+    def StopStreamingDrone(self):
+        try:
+            connections = psutil.net_connections()
+            port = 9000
+            for con in connections:
+                pid = self.GetPIDFromPort(port, con)
+                if(pid != -1):
+                    break
+            p = psutil.Process(pid)
+  
+        except Exception as ex:
+            print(ex)
+        finally:
+            p.terminate()
+
+    def GetPIDFromPort(self, port, con):
+        self.GetRightAddressPID(port, con)
+        self.GetLeftAddressPID(port, con)
+        return self.pid
+
+    def GetLeftAddressPID(self, port, con):
+        if self.CheckAddressPortForPID(con.laddr, port):
+            self.SetPID(con.pid)
+
+    def GetRightAddressPID(self, port, con):
+        if self.CheckAddressPortForPID(con.raddr, port):
+            self.SetPID(con.pid)
+
+    def SetPID(self, pid):
+        self.pid = pid
+        
+    def CheckAddressPortForPID(self, address, port):
+        if address != tuple():
+            if address.port == port:
+                return True
+        return False

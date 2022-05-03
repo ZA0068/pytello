@@ -140,7 +140,7 @@ class TestDroneControllerLive(unittest.TestCase):
         print("testing the drone live")
         self.drone = ArucoTelloController()
         self.drone.Setup()
-        self.returner = self.drone.Run()
+        self.returner, _ = self.drone.Run()
         
     def tearDown(self):
         self.drone.End()
@@ -177,7 +177,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityY(), float)
         self.assertIsInstance(self.drone.GetVelocityZ(), float)
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
-
+        
     def test_Drone_Live_Velocity_p2(self):
         self.assertIsInstance(self.drone.GetVelocityX(), float)
         # self.assertIsInstance(self.drone.GetVelocityY(), float)
