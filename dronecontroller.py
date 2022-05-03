@@ -54,7 +54,11 @@ class ArucoTelloController():
         return self.GetController().GetTheta()
     
     def GetVelocity(self, function):
-        return self.GetDetector().GetVelocity(function)
+        sum_of_velocities = 0
+        steps_size_for_resolution = 4
+        for i in range(steps_size_for_resolution):
+            sum_of_velocities += self.GetDetector().GetVelocity(function)
+        return sum_of_velocities/steps_size_for_resolution
     
     def GetVelocityX(self):
         return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraX)
@@ -71,8 +75,8 @@ class ArucoTelloController():
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-                print(self.GetVelocityX())
-            time.sleep(0.01)
+                print(self.GetVelocityX(), self.GetVelocityY(), self.GetVelocityZ(), self.GetVelocityTheta())
+            time.sleep(0.001)
         return 0
     
     def Run(self):

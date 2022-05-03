@@ -178,12 +178,6 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityZ(), float)
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
         
-    def test_Drone_Live_Velocity_p2(self):
-        self.assertIsInstance(self.drone.GetVelocityX(), float)
-        # self.assertIsInstance(self.drone.GetVelocityY(), float)
-        # self.assertIsInstance(self.drone.GetVelocityZ(), float)
-        # self.assertIsInstance(self.drone.GetVelocityTheta(), float)
-
 #     def test_Drone_Live_Flight(self):
 #         self.drone_controller.Run(False)
 #         self.assertTrue(self.drone_controller.IsMarkerDetected())

@@ -286,12 +286,12 @@ class Arucodetector:
         return self.spacing
     
     def GetVelocity(self, function):
-        elapsed = time.time()
+        starttime = time.time()
         vel1 = function()
-        time.sleep(0.01)
+        time.sleep(0.001)
         vel2 = function()
         if vel1 != None and vel2 != None:
-            return round((vel2[0,0]- vel1[0,0])/(time.time() - elapsed),2)
+            return round((float(vel2)- float(vel1))/(time.time() - starttime), 2)
         return 0.0
     
     def GetConnectionFailureFlag(self):
