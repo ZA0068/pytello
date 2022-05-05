@@ -179,6 +179,14 @@ class Arucodetector:
     def GetMarkerIds(self):
         return self.ids
     
+    def GetMarkerIndexByMarkerIds(self, id):
+        cnt = 0
+        for ids in self.GetMarkerIds():
+            if ids == id:
+                return cnt
+            cnt += 1
+        return -1
+    
     def GetRejectedCandidates(self):
         return self.rejected
     
@@ -224,13 +232,13 @@ class Arucodetector:
         return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
 
     def GetMarkerRotationVector(self, index) -> np.array:
-        if index < 0:
-            return self.GetRotoTranslationVector()[0][:]
+        if self.GetRotoTranslationVector() is None:
+            return None
         return self.GetRotoTranslationVector()[0][index, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
-        if index < 0:
-            return self.GetRotoTranslationVector()[1][:]
+        if self.GetRotoTranslationVector is None:
+            return None
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
     def GetMarkerXPosition(self, index = 0) -> float:
@@ -288,10 +296,10 @@ class Arucodetector:
     def GetVelocity(self, function):
         starttime = time.time()
         vel1 = function()
-        time.sleep(0.001)
+        time.sleep(0.0001)
         vel2 = function()
         if vel1 != None and vel2 != None:
-            return round((float(vel2)- float(vel1))/(time.time() - starttime), 2)
+            return round((float(vel2) - float(vel1))/(time.time() - starttime)/60, 2)
         return 0.0
     
     def GetConnectionFailureFlag(self):
@@ -359,11 +367,12 @@ class Arucodetector:
             self.GetDrone().connect()
             self.GetDrone().wait_for_connection(60.0)
             self.SetContainer(3)
-            self.SetConnectionStatus(True)
         except Exception as ex:
             self.Exception(ex)
             self.SetConnectionErrorFlag(True)
-
+        finally:
+            self.SetConnectionStatus(True)
+            
     def SetConnectionErrorFlag(self, flag):
         self.is_connection_failed = flag
 
@@ -470,7 +479,7 @@ class Arucodetector:
         self.Run()
 
     def Run(self) -> None:
-        if self.IsDroneConnected():
+        if self.IsDroneSuccesfullyConnected():
             self.SetArucoDictionaryForDetector()
             self.SetFrameSkip(300)
             for frame in self.GetContainer().decode(video=0):
@@ -518,7 +527,7 @@ class Arucodetector:
 
     def Land(self) -> None:
         if self.is_flying: 
-            self.GetDrone.land()
+            self.GetDrone().land()
             self.is_flying = False
 
     def StopStream(self) -> None:
@@ -531,7 +540,10 @@ class Arucodetector:
         self.SetDistortionCoefficients(None)
 
     def DisconnectDrone(self) -> None:
-        if self.IsDroneConnected() and not self.GetConnectionFailureFlag():
+        if self.IsDroneSuccesfullyConnected():
             self.GetDrone().quit()
             self.SetDrone(None)
             self.SetConnectionStatus(False)
+
+    def IsDroneSuccesfullyConnected(self):
+        return self.IsDroneConnected() and not self.GetConnectionFailureFlag()

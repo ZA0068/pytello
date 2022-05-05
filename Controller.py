@@ -77,6 +77,15 @@ class DroneController:
         Outputs_X.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "hard_right", verbose = self.GetLog()))
         lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-1.0, 1.0])
         self.GetController().add_linguistic_variable("velocity_x", lv_X, verbose = self.GetLog())
+
+        # self.GetController().set_crisp_output_value("hard_left", -1.0)
+        # self.GetController().set_crisp_output_value("left", -0.7)
+        # self.GetController().set_crisp_output_value("soft_left", -0.3)
+        # self.GetController().set_crisp_output_value("stop", 0.0)
+        # self.GetController().set_crisp_output_value("soft_right", 0.3)
+        # self.GetController().set_crisp_output_value("right", 0.7)
+        # self.GetController().set_crisp_output_value("hard_right", 1.0)
+
         
         Outputs_Y = []
         Outputs_Y.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "ascend_hard", verbose = self.GetLog()))
@@ -89,6 +98,14 @@ class DroneController:
         lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-1.0, 1.0])
         self.GetController().add_linguistic_variable("velocity_y", lv_Y, verbose = self.GetLog())
     
+        # self.GetController().set_crisp_output_value("", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+
     
         Outputs_Z = []
         Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
@@ -111,42 +128,49 @@ class DroneController:
         Outputs_Theta.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "turn_hard_left", verbose = self.GetLog()))
         lv_Theta = sf.LinguisticVariable(Outputs_Theta, concept = "Angular velocity in yaw(theta) axis", universe_of_discourse = [-1.0, 1.0])
         self.GetController().add_linguistic_variable("angular_velocity_theta", lv_Theta, verbose = self.GetLog())
-    
+
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
+            
+        
     def SetRules(self):
+        Rules = []
+        antecedence = []
+        consequence = []
+        linguistic_variable_namelist = list(self.GetController()._lvs.keys())
+        Rules = self.CreateRules(antecedence, consequence, linguistic_variable_namelist)
+        
+        self.GetController().add_rules(Rules, verbose=self.GetLog())
+
+    def CreateRules(self, antecedence, consequence, linguistic_variable_namelist):
+        for index in range(4):
+            antecedence_variable = linguistic_variable_namelist[index]
+            consequence_variable = linguistic_variable_namelist[index+4]
+            Rule = self.CreateRule(antecedence, consequence, antecedence_variable, consequence_variable)
+        return Rule
+
+    def CreateRule(self, antecedence, consequence, antecedence_variable, consequence_variable):
         Rule = []
-        Rule.append("IF (x IS far_left) THEN (velocity_x IS hard_left)")
-        Rule.append("IF (x IS left) THEN (velocity_x IS left)")
-        Rule.append("IF (x IS slightly_left) THEN (velocity_x IS soft_left)")
-        Rule.append("IF (x IS center) THEN (velocity_x IS stop)")
-        Rule.append("IF (x IS slightly_right) THEN (velocity_x IS soft_right)")
-        Rule.append("IF (x IS right) THEN (velocity_x IS right)")
-        Rule.append("IF (x IS far_right) THEN (velocity_x IS hard_right)")
-        
-        Rule.append("IF (y IS far_above) THEN (velocity_y IS descend_hard)")
-        Rule.append("IF (y IS above) THEN (velocity_y IS descend)")
-        Rule.append("IF (y IS slightly_above) THEN (velocity_y IS descend_light)")
-        Rule.append("IF (y IS center) THEN (velocity_y IS hover)")
-        Rule.append("IF (y IS slightly_below) THEN (velocity_y IS ascend_light)")
-        Rule.append("IF (y IS below) THEN (velocity_y IS ascend)")
-        Rule.append("IF (y IS far_below) THEN (velocity_y IS ascend_hard)")
+        self.CreateAntecendence(antecedence, antecedence_variable)
+        self.CreateConsequence(consequence, consequence_variable)
+        self.ApplyRules(antecedence, consequence, Rule)
+        return Rule
 
-        Rule.append("IF (z IS too_far) THEN (velocity_z IS fast_forward)")
-        Rule.append("IF (z IS far) THEN (velocity_z IS forward)")
-        Rule.append("IF (z IS slightly_far) THEN (velocity_z IS slow_forward)")
-        Rule.append("IF (z IS perfect) THEN (velocity_z IS stop)")
-        Rule.append("IF (z IS slightly_close) THEN (velocity_z IS slow_reverse)")
-        Rule.append("IF (z IS close) THEN (velocity_z IS reverse)")
-        Rule.append("IF (z IS too_close) THEN (velocity_z IS fast_reverse)")
+    def ApplyRules(self, antecedence, consequence, Rule):
+        for i in range(len(antecedence)):
+            rule = f'IF ({antecedence[i]}) THEN ({consequence[i]})'
+            Rule.append(rule)
 
-        Rule.append("IF (theta IS far_left) THEN (angular_velocity_theta IS turn_hard_left)")
-        Rule.append("IF (theta IS left) THEN (angular_velocity_theta IS turn_left)")
-        Rule.append("IF (theta IS slightly_left) THEN (angular_velocity_theta IS turn_slightly_left)")
-        Rule.append("IF (theta IS center) THEN (angular_velocity_theta IS no_turn)")
-        Rule.append("IF (theta IS slightly_right) THEN (angular_velocity_theta IS turn_slightly_right)")
-        Rule.append("IF (theta IS right) THEN (angular_velocity_theta IS turn_right)")
-        Rule.append("IF (theta IS far_right) THEN (angular_velocity_theta IS turn_hard_right)")
-        
-        self.GetController().add_rules(Rule, verbose=self.GetLog())
+    def CreateConsequence(self, consequence, consequence_variable):
+        for consequence_value in self.GetController().get_fuzzy_sets(consequence_variable):    
+            consequence.append(f'{consequence_variable} IS {consequence_value._term}')
+
+    def CreateAntecendence(self, antecedence, antecedence_variable):
+        for antecedence_value in self.GetController().get_fuzzy_sets(antecedence_variable):
+            antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')            
         
     def SetVar(self, name, value):
         self.GetController().set_variable(name, value, verbose=self.GetLog())

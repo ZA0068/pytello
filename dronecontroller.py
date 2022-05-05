@@ -3,6 +3,7 @@ from Controller import DroneController
 import os
 import time
 import concurrent.futures
+import threading
 import psutil
 import sys
 class ArucoTelloController():
@@ -11,8 +12,9 @@ class ArucoTelloController():
         self.dronecontroller = None
         self.detectorprocessor = None
         self.velocitythread = None
+        self.controllerthread = None
         self.pid = -1
-        
+        self.lock = threading.Lock()
     def Setup(self):
         self.SetDetector()
         self.SetController()
@@ -37,25 +39,9 @@ class ArucoTelloController():
             self.GetDetector().GetDrone().takeoff()
             self.GetDetector().is_flying = True
     
-    def ControlX(self, input):
-        self.GetController().SetX(input)
-        return self.GetController().GetX()
-    
-    def ControlY(self, input):
-        self.GetController().SetY(input)
-        return self.GetController().GetY()
-    
-    def ControlZ(self, input):
-        self.GetController().SetZ(input)
-        return self.GetController().GetZ()
-    
-    def ControlTheta(self, input):
-        self.GetController().SetTheta(input)
-        return self.GetController().GetTheta()
-    
     def GetVelocity(self, function):
         sum_of_velocities = 0
-        steps_size_for_resolution = 4
+        steps_size_for_resolution = 5
         for i in range(steps_size_for_resolution):
             sum_of_velocities += self.GetDetector().GetVelocity(function)
         return sum_of_velocities/steps_size_for_resolution
@@ -75,15 +61,68 @@ class ArucoTelloController():
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-                print(self.GetVelocityX(), self.GetVelocityY(), self.GetVelocityZ(), self.GetVelocityTheta())
+                print(self.GetVelocityZ())
+                break
             time.sleep(0.001)
         return 0
     
-    def Run(self):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+    def ControlDrone(self):
+        while self.GetDetector().IsDroneStreaming():
+            self.lock.acquire()
+            self.ControlPosition()
+            self.lock.release()
+            time.sleep(0.001)
+        return 0
+    
+    def ControlPosition(self):
+        x, y, z, theta = self.GetControlPositions()
+        print(x, y, z, theta)
+        self.SendControlPositionsToDrone(x, y, z, theta)
+
+    def SendControlPositionsToDrone(self, x, y, z, theta):
+        if x is not None:
+            self.GetDetector().GetDrone().set_roll(x)
+        if y is not None:
+            self.GetDetector().GetDrone().set_throttle(y)
+        if z is not None:
+            self.GetDetector().GetDrone().set_pitch(z)
+        if theta is not None:
+            self.GetDetector().GetDrone().set_yaw(theta)
+
+    def GetControlPositions(self):
+        x = self.ControlLateralPosition(self.GetDetector().GetClosestMarkerByCameraX())
+        y = self.ControlVerticalPosition(self.GetDetector().GetClosestMarkerByCameraY())
+        z = self.ControlLongitualPosition(self.GetDetector().GetClosestMarkerByCameraZ())
+        theta = self.ControlYawAngle(self.GetDetector().GetClosestMarkerByCameraTheta())
+        return x,y,z,theta
+    
+    def ControlLateralPosition(self, x):
+        if x is not None:
+            self.GetController().SetX(x)
+            return self.GetController().GetX()
+    
+    def ControlVerticalPosition(self, y):
+        if y is not None:
+            self.GetController().SetY(y)
+            return self.GetController().GetY()
+    
+    def ControlLongitualPosition(self, z):
+        if z is not None:
+            self.GetController().SetZ(z)
+            return self.GetController().GetZ()
+
+    def ControlYawAngle(self, theta):
+        if theta is not None:
+            self.GetController().SetTheta(theta)
+            return self.GetController().GetTheta()
+    
+    def Run(self, Fly = False):
+        self.Fly(Fly)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             self.detectorprocessor = executor.submit(self.GetDetector().Run)
             self.velocitythread = executor.submit(self.UpdateVelocity)
-        return self.detectorprocessor.result() , self.velocitythread.result()
+            self.controllerthread = executor.submit(self.ControlDrone)
+        return self.detectorprocessor.result() , self.velocitythread.result(), self.controllerthread.result()
     
     def End(self):
         if self.GetDetector().IsDroneConnected():

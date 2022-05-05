@@ -140,7 +140,7 @@ class TestDroneControllerLive(unittest.TestCase):
         print("testing the drone live")
         self.drone = ArucoTelloController()
         self.drone.Setup()
-        self.returner, _ = self.drone.Run()
+        self.returner, self.velocity_return_value, self.control_return_value = self.drone.Run(False)
         
     def tearDown(self):
         self.drone.End()
@@ -178,10 +178,12 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityZ(), float)
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
         
-#     def test_Drone_Live_Flight(self):
-#         self.drone_controller.Run(False)
-#         self.assertTrue(self.drone_controller.IsMarkerDetected())
-#         self.assertIsNotNone(self.drone_controller.FindClosestMarker())
+        self.assertEqual(self.returner, "Complete!")
+        self.assertEqual(self.velocity_return_value, 0)
+        self.assertEqual(self.control_return_value, 0)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
