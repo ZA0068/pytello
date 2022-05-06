@@ -61,8 +61,9 @@ class ArucoTelloController():
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
+                self.lock.acquire()
                 print(self.GetVelocityZ())
-                break
+                self.lock.release()
             time.sleep(0.001)
         return 0
     
