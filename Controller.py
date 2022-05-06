@@ -111,7 +111,7 @@ class DroneController:
 
     def CreateConsequence(self, consequence_variable):
         consequence = []
-        for consequence_value in [3,2,1]]:    
+        for consequence_value in [3,2,1]:    
             consequence.append(f'{consequence_variable} IS {consequence_value}')
         return consequence
 
