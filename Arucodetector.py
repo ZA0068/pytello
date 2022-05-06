@@ -35,6 +35,7 @@ class Arucodetector:
         self.is_flying = False
         self.lock = threading.Lock()
         self.is_connection_failed = False
+        self.framecounter = 0
         
     def Setup(self):
         self.SetFlippedMatrix()
@@ -492,9 +493,12 @@ class Arucodetector:
                     return self.End()
    
     def Stream(self, frame):
-        start_time = time.time()
-        self.DisplayImage(frame)
-        self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
+        self.framecounter += 1
+        if self.framecounter % 10 == 0:
+            start_time = time.time()
+            self.DisplayImage(frame)
+            self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
+            
 
     def UpdateFrameSkip(self, start_time, time_base) -> None:
         self.SetFrameSkip(int((time.time() - start_time)/time_base))

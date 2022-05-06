@@ -63,23 +63,23 @@ import unittest
 #         self.assertIsNotNone(self.testdetector.GetCameraYaw())
 
 
-#from Controller import DroneController
-#import simpful as fuzzy
-# class TestDroneController(unittest.TestCase):
-    # 
-    # def setUp(self):
-        # self.drone_controller = DroneController()
-        # self.drone_controller.SetLog()
-        # self.drone_controller.Setup()
-# 
-    # def tearDown(self):
-        # print("testing are done \n")
+from Controller import DroneController
+import simpful as fuzzy
+class TestDroneController(unittest.TestCase):
+    
+    def setUp(self):
+        self.drone_controller = DroneController()
+        self.drone_controller.SetLog()
+        self.drone_controller.Setup()
 
-    # def test_Drone_controller_setup(self):
-        # controller = self.drone_controller.GetController()
-        # self.assertIsInstance(controller, fuzzy.FuzzySystem)
-        # self.assertNotEqual(controller._lvs.__len__(), 0)
-        # self.assertNotEqual(controller._rules.__len__(), 0)
+    def tearDown(self):
+        print("testing are done \n")
+
+    def test_Drone_controller_setup(self):
+        controller = self.drone_controller.GetController()
+        self.assertIsInstance(controller, fuzzy.FuzzySystem)
+        self.assertNotEqual(controller._lvs.__len__(), 0)
+        self.assertNotEqual(controller._rules.__len__(), 0)
 # 
     # def test_Drone_controller_functionality_center(self):
         # self.drone_controller.SetX(0)
@@ -178,6 +178,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityZ(), float)
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
         
+    def test_Drone_Live_Flight(self):
         self.assertEqual(self.returner, "Complete!")
         self.assertEqual(self.velocity_return_value, 0)
         self.assertEqual(self.control_return_value, 0)

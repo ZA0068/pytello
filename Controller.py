@@ -2,6 +2,7 @@ import numpy as np
 import math
 import simpful as sf
 import matplotlib.pyplot as plt
+import itertools
 class DroneController:
     def __init__(self):
         self.controller = None
@@ -67,110 +68,57 @@ class DroneController:
         self.GetController().add_linguistic_variable("theta", lv_Theta, verbose = self.GetLog())
 
     def SetOutputs(self):       
-        Outputs_X = []
-        Outputs_X.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "hard_left", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "left", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "soft_left", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "soft_right", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "right", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "hard_right", verbose = self.GetLog()))
-        lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("velocity_x", lv_X, verbose = self.GetLog())
+        output_values = [-1.0, -0.7, -0.3, 0.0, 0.3, 0.7, 1.0]
+        left_right_movement = ["hard_left", "left", "slightly_left", "center", "slightly_right", "right", "hard_right"]
+        up_down_movement = ["ascending_hard", "ascend", "ascend_light", "hover", "descend_light", "descend", "descend_hard"]
+        forward_backward_movement = ["fast_reverse", "reverse", "slow_reverse", "stop", "slow_forward", "forward", "fast_forward"]
+        yaw_movement = ["turn_hard_left", "turn_left", "turn_slightly_left", "turn_center", "turn_slightly_right", "turn_right", "turn_hard_right"]
+        output_movement_names = left_right_movement + up_down_movement + forward_backward_movement + yaw_movement
 
-        # self.GetController().set_crisp_output_value("hard_left", -1.0)
-        # self.GetController().set_crisp_output_value("left", -0.7)
-        # self.GetController().set_crisp_output_value("soft_left", -0.3)
-        # self.GetController().set_crisp_output_value("stop", 0.0)
-        # self.GetController().set_crisp_output_value("soft_right", 0.3)
-        # self.GetController().set_crisp_output_value("right", 0.7)
-        # self.GetController().set_crisp_output_value("hard_right", 1.0)
-
+        for output_index in range(len(output_movement_names)):
+            self.GetController().set_crisp_output_value(output_movement_names[output_index], output_values[output_index%7])
         
-        Outputs_Y = []
-        Outputs_Y.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "ascend_hard", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "ascend", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "ascend_light", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "hover", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "descend_light", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "descend", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "descend_hard", verbose = self.GetLog()))
-        lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("velocity_y", lv_Y, verbose = self.GetLog())
-    
-        # self.GetController().set_crisp_output_value("", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-
-    
-        Outputs_Z = []
-        Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "slow_reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "slow_forward", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "forward", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "fast_forward", verbose = self.GetLog()))
-        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("velocity_z", lv_Z, verbose = self.GetLog())
-    
-        Outputs_Theta = []
-        Outputs_Theta.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "turn_hard_right", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "turn_right", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "turn_slightly_right", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "no_turn", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "turn_slightly_left", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "turn_left", verbose = self.GetLog()))
-        Outputs_Theta.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "turn_hard_left", verbose = self.GetLog()))
-        lv_Theta = sf.LinguisticVariable(Outputs_Theta, concept = "Angular velocity in yaw(theta) axis", universe_of_discourse = [-1.0, 1.0])
-        self.GetController().add_linguistic_variable("angular_velocity_theta", lv_Theta, verbose = self.GetLog())
-
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-        # self.GetController().set_crisp_output_value("velocity_x", 0.0)
-            
         
     def SetRules(self):
         Rules = []
-        antecedence = []
-        consequence = []
-        linguistic_variable_namelist = list(self.GetController()._lvs.keys())
-        Rules = self.CreateRules(antecedence, consequence, linguistic_variable_namelist)
+        antecedenct_variables = list(self.GetController()._lvs.keys())
+        consequent_variables = ["velocity_x", "velocity_y", "velocity_z", "velocity_theta"]
+        consequent_values = list(self.GetController()._crispvalues.keys())
+        Rules = self.CreateRules(antecedenct_variables, consequent_variables, consequent_values)
         
         self.GetController().add_rules(Rules, verbose=self.GetLog())
 
-    def CreateRules(self, antecedence, consequence, linguistic_variable_namelist):
-        for index in range(4):
-            antecedence_variable = linguistic_variable_namelist[index]
-            consequence_variable = linguistic_variable_namelist[index+4]
-            Rule = self.CreateRule(antecedence, consequence, antecedence_variable, consequence_variable)
+    def CreateRules(self, antecedenct_variables_namelist, consequent_variables_namelist, consequent_values):
+        for variable_index in range(len(antecedenct_variables_namelist)):
+            for consequent_value in consequent_values:
+                Rule = self.CreateRule(antecedenct_variables_namelist[variable_index],
+                                       consequent_variables_namelist[variable_index],
+                                       consequent_value)
         return Rule
 
-    def CreateRule(self, antecedence, consequence, antecedence_variable, consequence_variable):
+    def CreateRule(self, antecedence_variables, consequence_variables, consequent_value):
         Rule = []
-        self.CreateAntecendence(antecedence, antecedence_variable)
-        self.CreateConsequence(consequence, consequence_variable)
+        antecedence = self.CreateAntecendence(antecedence_variables)
+        consequence = self.CreateConsequence(consequence_variables)
         self.ApplyRules(antecedence, consequence, Rule)
         return Rule
 
-    def ApplyRules(self, antecedence, consequence, Rule):
+    def ApplyRules(self, consequence, Rule):
+        antecedence = []
         for i in range(len(antecedence)):
             rule = f'IF ({antecedence[i]}) THEN ({consequence[i]})'
             Rule.append(rule)
 
-    def CreateConsequence(self, consequence, consequence_variable):
-        for consequence_value in self.GetController().get_fuzzy_sets(consequence_variable):    
-            consequence.append(f'{consequence_variable} IS {consequence_value._term}')
+    def CreateConsequence(self, consequence_variable):
+        consequence = []
+        for consequence_value in [3,2,1]]:    
+            consequence.append(f'{consequence_variable} IS {consequence_value}')
+        return consequence
 
     def CreateAntecendence(self, antecedence, antecedence_variable):
         for antecedence_value in self.GetController().get_fuzzy_sets(antecedence_variable):
-            antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')            
+            antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')
+        return antecedence            
         
     def SetVar(self, name, value):
         self.GetController().set_variable(name, value, verbose=self.GetLog())
