@@ -238,7 +238,7 @@ class Arucodetector:
         return self.GetRotoTranslationVector()[0][index, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
-        if self.GetRotoTranslationVector is None:
+        if self.GetRotoTranslationVector() is None:
             return None
         return self.GetRotoTranslationVector()[1][index, 0, :]
 
@@ -493,11 +493,9 @@ class Arucodetector:
                     return self.End()
    
     def Stream(self, frame):
-        self.framecounter += 1
-        if self.framecounter % 10 == 0:
-            start_time = time.time()
-            self.DisplayImage(frame)
-            self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
+        start_time = time.time()
+        self.DisplayImage(frame)
+        self.UpdateFrameSkip(start_time, self.GetTimeBase(frame))
             
 
     def UpdateFrameSkip(self, start_time, time_base) -> None:

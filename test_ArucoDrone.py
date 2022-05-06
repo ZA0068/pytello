@@ -63,23 +63,23 @@ import unittest
 #         self.assertIsNotNone(self.testdetector.GetCameraYaw())
 
 
-from Controller import DroneController
-import simpful as fuzzy
-class TestDroneController(unittest.TestCase):
+# from Controller import DroneController
+# import simpful as fuzzy
+# class TestDroneController(unittest.TestCase):
     
-    def setUp(self):
-        self.drone_controller = DroneController()
-        self.drone_controller.SetLog()
-        self.drone_controller.Setup()
+#     def setUp(self):
+#         self.drone_controller = DroneController()
+#         self.drone_controller.SetLog()
+#         self.drone_controller.Setup()
 
-    def tearDown(self):
-        print("testing are done \n")
+#     def tearDown(self):
+#         print("testing are done \n")
 
-    def test_Drone_controller_setup(self):
-        controller = self.drone_controller.GetController()
-        self.assertIsInstance(controller, fuzzy.FuzzySystem)
-        self.assertNotEqual(controller._lvs.__len__(), 0)
-        self.assertNotEqual(controller._rules.__len__(), 0)
+#     def test_Drone_controller_setup(self):
+#         controller = self.drone_controller.GetController()
+#         self.assertIsInstance(controller, fuzzy.FuzzySystem)
+#         self.assertNotEqual(controller._lvs.__len__(), 0)
+#         self.assertNotEqual(controller._rules.__len__(), 0)
 # 
     # def test_Drone_controller_functionality_center(self):
         # self.drone_controller.SetX(0)

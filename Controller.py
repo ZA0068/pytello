@@ -82,40 +82,39 @@ class DroneController:
     def SetRules(self):
         Rules = []
         antecedenct_variables = list(self.GetController()._lvs.keys())
-        consequent_variables = ["velocity_x", "velocity_y", "velocity_z", "velocity_theta"]
+        consequent_variables = ["output_x", "output_y", "output_z", "output_theta"]
         consequent_values = list(self.GetController()._crispvalues.keys())
         Rules = self.CreateRules(antecedenct_variables, consequent_variables, consequent_values)
-        
         self.GetController().add_rules(Rules, verbose=self.GetLog())
 
     def CreateRules(self, antecedenct_variables_namelist, consequent_variables_namelist, consequent_values):
-        for variable_index in range(len(antecedenct_variables_namelist)):
-            for consequent_value in consequent_values:
-                Rule = self.CreateRule(antecedenct_variables_namelist[variable_index],
-                                       consequent_variables_namelist[variable_index],
-                                       consequent_value)
-        return Rule
-
-    def CreateRule(self, antecedence_variables, consequence_variables, consequent_value):
         Rule = []
-        antecedence = self.CreateAntecendence(antecedence_variables)
-        consequence = self.CreateConsequence(consequence_variables)
-        self.ApplyRules(antecedence, consequence, Rule)
+        for variable_index in range(len(antecedenct_variables_namelist)):
+            Rule += self.CreateRule(antecedenct_variables_namelist[variable_index],
+                                    consequent_variables_namelist[variable_index],
+                                    consequent_values[variable_index * 7: variable_index*7+7])
         return Rule
 
-    def ApplyRules(self, consequence, Rule):
-        antecedence = []
+    def CreateRule(self, antecedence_variables, consequence_variables, consequent_values):
+        antecedence = self.CreateAntecendence(antecedence_variables)
+        consequence = self.CreateConsequence(consequence_variables, consequent_values)
+        return self.ApplyRules(antecedence, consequence)
+
+    def ApplyRules(self, antecedence, consequence):
+        Rule = []
         for i in range(len(antecedence)):
             rule = f'IF ({antecedence[i]}) THEN ({consequence[i]})'
             Rule.append(rule)
+        return Rule
 
-    def CreateConsequence(self, consequence_variable):
+    def CreateConsequence(self, consequence_variable, consequent_values):
         consequence = []
-        for consequence_value in [3,2,1]:    
-            consequence.append(f'{consequence_variable} IS {consequence_value}')
+        for consequent_value in consequent_values:
+            consequence.append(f'{consequence_variable} IS {consequent_value}')
         return consequence
 
-    def CreateAntecendence(self, antecedence, antecedence_variable):
+    def CreateAntecendence(self, antecedence_variable):
+        antecedence = []
         for antecedence_value in self.GetController().get_fuzzy_sets(antecedence_variable):
             antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')
         return antecedence            
@@ -143,16 +142,16 @@ class DroneController:
         return round(self.GetController().inference([name])[name], 2)
 
     def GetX(self):
-        return self.UpdateController("velocity_x")
+        return self.UpdateController("output_x")
     
     def GetY(self):
-        return self.UpdateController("velocity_y")
+        return self.UpdateController("output_y")
     
     def GetZ(self):
-        return self.UpdateController("velocity_z")
+        return self.UpdateController("output_z")
     
     def GetTheta(self):
-        return self.UpdateController("angular_velocity_theta")
+        return self.UpdateController("output_theta")
     
     def GetLog(self):
         return self.verbose
