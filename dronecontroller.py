@@ -13,9 +13,12 @@ class ArucoTelloController():
         self.controllerthread = None
         self.pid = -1
         self.lock = threading.Lock()
-    def Setup(self):
-        self.SetDetector()
-        self.SetController()
+        
+    def Setup(self, set_detector=True, set_controller=True):
+        if set_detector:
+            self.SetDetector()
+        if set_controller:
+            self.SetController()
         
     def SetDetector(self):
         self.arucodetector = Arucodetector()
@@ -25,8 +28,26 @@ class ArucoTelloController():
     def LoadFile(self, filename):
         return np.loadtxt(filename, delimiter=',')
     
+    def LoadControllerFromFiles(self):
+        X_input = self.LoadFile("X_control_curve_input.txt")
+        X_output = self.LoadFile("X_control_curve_output.txt")
+        Lateral_Controller = self.CreateDictionaryWithArrayPairs(X_input, X_output)
+        Y_input = self.LoadFile("Y_control_curve_input.txt")
+        Y_output = self.LoadFile("Y_control_curve_output.txt")
+        Vertical_Controller = self.CreateDictionaryWithArrayPairs(Y_input, Y_output)
+        Z_input = self.LoadFile("Z_control_curve_input.txt")
+        Z_output = self.LoadFile("Z_control_curve_output.txt")
+        Longitual_Controller = self.CreateDictionaryWithArrayPairs(Z_input, Z_output)
+        Theta_input = self.LoadFile("Theta_control_curve_input.txt")
+        Theta_output = self.LoadFile("Theta_control_curve_output.txt")
+        Yaw_Controller = self.CreateDictionaryWithArrayPairs(Theta_input, Theta_output)
+        return 0
+
+    def CreateDictionaryWithArrayPairs(self, input_array, output_array):
+        return {input_array[i]:output_array[i] for i in range(len(input_array))}
+
     def SetController(self):
-        
+        self.LoadControllerFromFiles()
         self.dronecontroller.Setup()
     
     def GetDetector(self):
@@ -118,13 +139,20 @@ class ArucoTelloController():
             self.GetController().SetTheta(theta)
             return self.GetController().GetTheta()
     
-    def Run(self, Fly = False):
-        self.Fly(Fly)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            self.detectorprocessor = executor.submit(self.GetDetector().Run)
-            self.velocitythread = executor.submit(self.UpdateVelocity)
-            self.controllerthread = executor.submit(self.ControlDrone)
-        return self.detectorprocessor.result() , self.velocitythread.result(), self.controllerthread.result()
+    def Run(self, run=True, fly = False):
+        self.Fly(fly)
+        if run:
+            try:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                    self.detectorprocessor = executor.submit(self.GetDetector().Run)
+                    self.velocitythread = executor.submit(self.UpdateVelocity)
+                    self.controllerthread = executor.submit(self.ControlDrone)
+            except Exception as e:
+                return e
+            finally:
+                return self.detectorprocessor.result() , self.velocitythread.result(), self.controllerthread.result()
+        else:
+            return "Complete!", 0, 0
     
     def End(self):
         if self.GetDetector().IsDroneConnected():
