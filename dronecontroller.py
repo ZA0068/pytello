@@ -96,16 +96,16 @@ class ArucoTelloController():
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-                self.lock.acquire()
-                print(self.GetVelocityZ())
-                self.lock.release()
+                self.GetVelocityX()
+                self.GetVelocityY()
+                self.GetVelocityZ()
+                self.GetVelocityTheta()
+            time.sleep(0.001)
         return 0
     
     def ControlDrone(self):
         while self.GetDetector().IsDroneStreaming():
-            self.lock.acquire()
             self.ControlPosition()
-            self.lock.release()
             time.sleep(0.001)
         return 0
     
@@ -159,13 +159,13 @@ class ArucoTelloController():
             theta = self.EncapsulateBoundary(theta, -70, 70)
             return self.GetYawController()[theta]
 
-    def EncapsulateBoundary(self, x, minimum, maximum):
+    def EncapsulateBoundary(self, x, minimum: float, maximum: float):
         if x < minimum:
             return minimum
         elif x > maximum:
             return maximum
         else:
-            return x
+            return round(float(x), 0)
     
     def Run(self, run=True, fly = False):
         self.Fly(fly)
