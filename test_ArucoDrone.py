@@ -143,8 +143,8 @@ class TestDroneControllerLive(unittest.TestCase):
     def setUp(self):
         print("testing the drone live")
         self.drone = ArucoTelloController()
-        self.drone.Setup()
-        self.returner, self.velocity_return_value, self.control_return_value = self.drone.Run(False)
+        self.drone.Setup(set_detector=False)
+        self.returner, self.velocity_return_value, self.control_return_value = self.drone.Run(False, False)
         
     def tearDown(self):
         self.drone.End()
