@@ -144,8 +144,9 @@ class TestDroneControllerLive(unittest.TestCase):
         print("testing the drone live")
         self.drone = ArucoTelloController()
         self.drone.Setup()
+        self.returner, self.velocity_return_value, self.control_return_value = None, -1, -1
         try:
-            self.returner, self.velocity_return_value, self.control_return_value = self.drone.Run(fly = True)
+            self.returner, self.velocity_return_value, self.control_return_value = self.drone.Run(fly = False)
         except Exception as e:
             self.exception = e
         
