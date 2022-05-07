@@ -111,7 +111,6 @@ class ArucoTelloController():
     
     def ControlPosition(self):
         x, y, z, theta = self.GenerateControlSignals()
-        print(x, y, z, theta)
         self.SendControlSignalsToTheDrone(x, y, z, theta)
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
@@ -168,9 +167,9 @@ class ArucoTelloController():
             return round(float(x), 0)
     
     def Run(self, run=True, fly = False):
-        self.Fly(fly)
         if run:
             try:
+                self.Fly(fly)
                 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
                     self.detectorprocessor = executor.submit(self.GetDetector().Run)
                     self.velocitythread = executor.submit(self.UpdateVelocity)
