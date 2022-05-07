@@ -28,33 +28,34 @@ class ArucoTelloController():
     def LoadFile(self, filename):
         return np.loadtxt(filename, delimiter=',')
     
-    def LoadControllerFromFiles(self):
+    def LoadControllerArraysFromFiles(self):
         X_input = self.LoadFile("X_control_curve_input.txt")
         X_output = self.LoadFile("X_control_curve_output.txt")
-        Lateral_Controller = self.CreateDictionaryWithArrayPairs(X_input, X_output)
         Y_input = self.LoadFile("Y_control_curve_input.txt")
         Y_output = self.LoadFile("Y_control_curve_output.txt")
-        Vertical_Controller = self.CreateDictionaryWithArrayPairs(Y_input, Y_output)
         Z_input = self.LoadFile("Z_control_curve_input.txt")
         Z_output = self.LoadFile("Z_control_curve_output.txt")
-        Longitual_Controller = self.CreateDictionaryWithArrayPairs(Z_input, Z_output)
         Theta_input = self.LoadFile("Theta_control_curve_input.txt")
         Theta_output = self.LoadFile("Theta_control_curve_output.txt")
-        Yaw_Controller = self.CreateDictionaryWithArrayPairs(Theta_input, Theta_output)
-        return 0
+        return [X_input, Y_input, Z_input, Theta_input], [X_output, Y_output, Z_output, Theta_output]
+
+    def CreateControllersFromArrays(self, controllerarrays):
+        self.Lateral_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][0], controllerarrays[1][0])
+        self.Vertical_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][1], controllerarrays[1][1])
+        self.Longitual_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][2], controllerarrays[1][2])
+        self.Yaw_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][3], controllerarrays[1][3])
 
     def CreateDictionaryWithArrayPairs(self, input_array, output_array):
         return {input_array[i]:output_array[i] for i in range(len(input_array))}
 
     def SetController(self):
-        self.LoadControllerFromFiles()
-        self.dronecontroller.Setup()
+        self.CreateControllersFromArrays(self.LoadControllerArraysFromFiles())
     
     def GetDetector(self):
         return self.arucodetector
         
-    def GetController(self):
-        return self.dronecontroller
+    def GetControllers(self):
+        return self.Lateral_Controller, self.Vertical_Controller, self.Longitual_Controller, self.Yaw_Controller
     
     def Fly(self, takeoff=True):
         if takeoff:
@@ -121,23 +122,23 @@ class ArucoTelloController():
     
     def ControlLateralPosition(self, x):
         if x is not None:
-            self.GetController().SetX(x)
-            return self.GetController().GetX()
+            self.GetControllers().SetX(x)
+            return self.GetControllers().GetX()
     
     def ControlVerticalPosition(self, y):
         if y is not None:
-            self.GetController().SetY(y)
-            return self.GetController().GetY()
+            self.GetControllers().SetY(y)
+            return self.GetControllers().GetY()
     
     def ControlLongitualPosition(self, z):
         if z is not None:
-            self.GetController().SetZ(z)
-            return self.GetController().GetZ()
+            self.GetControllers().SetZ(z)
+            return self.GetControllers().GetZ()
 
     def ControlYawAngle(self, theta):
         if theta is not None:
-            self.GetController().SetTheta(theta)
-            return self.GetController().GetTheta()
+            self.GetControllers().SetTheta(theta)
+            return self.GetControllers().GetTheta()
     
     def Run(self, run=True, fly = False):
         self.Fly(fly)
