@@ -2,7 +2,6 @@ import numpy as np
 import math
 import simpful as sf
 import matplotlib.pyplot as plt
-import itertools
 class DroneController:
     def __init__(self):
         self.controller = None
@@ -68,56 +67,85 @@ class DroneController:
         self.GetController().add_linguistic_variable("theta", lv_Theta, verbose = self.GetLog())
 
     def SetOutputs(self):       
-        output_values = [-1.0, -0.7, -0.3, 0.0, 0.3, 0.7, 1.0]
-        left_right_movement = ["hard_left", "left", "slightly_left", "center", "slightly_right", "right", "hard_right"]
-        up_down_movement = ["ascending_hard", "ascend", "ascend_light", "hover", "descend_light", "descend", "descend_hard"]
-        forward_backward_movement = ["fast_reverse", "reverse", "slow_reverse", "stop", "slow_forward", "forward", "fast_forward"]
-        yaw_movement = ["turn_hard_left", "turn_left", "turn_slightly_left", "turn_center", "turn_slightly_right", "turn_right", "turn_hard_right"]
-        output_movement_names = left_right_movement + up_down_movement + forward_backward_movement + yaw_movement
-
-        for output_index in range(len(output_movement_names)):
-            self.GetController().set_crisp_output_value(output_movement_names[output_index], output_values[output_index%7])
+        Outputs_X = []
+        Outputs_X.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "hard_left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "soft_left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "soft_right", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "right", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "hard_right", verbose = self.GetLog()))
+        lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-1.0, 1.0])
+        self.GetController().add_linguistic_variable("output_x", lv_X, verbose = self.GetLog())
         
-        
+        Outputs_Y = []
+        Outputs_Y.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "ascend_hard", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "ascend", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "ascend_light", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "hover", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "descend_light", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "descend", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "descend_hard", verbose = self.GetLog()))
+        lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-1.0, 1.0])
+        self.GetController().add_linguistic_variable("output_y", lv_Y, verbose = self.GetLog())
+    
+    
+        Outputs_Z = []
+        Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "slow_reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "slow_forward", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "forward", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "fast_forward", verbose = self.GetLog()))
+        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-1.0, 1.0])
+        self.GetController().add_linguistic_variable("output_z", lv_Z, verbose = self.GetLog())
+    
+        Outputs_Theta = []
+        Outputs_Theta.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "turn_hard_right", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "turn_right", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "turn_slightly_right", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "no_turn", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "turn_slightly_left", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "turn_left", verbose = self.GetLog()))
+        Outputs_Theta.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "turn_hard_left", verbose = self.GetLog()))
+        lv_Theta = sf.LinguisticVariable(Outputs_Theta, concept = "Angular velocity in yaw(theta) axis", universe_of_discourse = [-1.0, 1.0])
+        self.GetController().add_linguistic_variable("output_theta", lv_Theta, verbose = self.GetLog())
+    
     def SetRules(self):
         Rules = []
-        antecedenct_variables = list(self.GetController()._lvs.keys())
-        consequent_variables = ["output_x", "output_y", "output_z", "output_theta"]
-        consequent_values = list(self.GetController()._crispvalues.keys())
-        Rules = self.CreateRules(antecedenct_variables, consequent_variables, consequent_values)
+        antecedence = []
+        consequence = []
+        linguistic_variable_namelist = list(self.GetController()._lvs.keys())
+        Rules = self.CreateRules(antecedence, consequence, linguistic_variable_namelist)
         self.GetController().add_rules(Rules, verbose=self.GetLog())
 
-    def CreateRules(self, antecedenct_variables_namelist, consequent_variables_namelist, consequent_values):
-        Rule = []
-        for variable_index in range(len(antecedenct_variables_namelist)):
-            Rule += self.CreateRule(antecedenct_variables_namelist[variable_index],
-                                    consequent_variables_namelist[variable_index],
-                                    consequent_values[variable_index * 7: variable_index*7+7])
+    def CreateRules(self, antecedence, consequence, linguistic_variable_namelist):
+        for index in range(4):
+            antecedence_variable = linguistic_variable_namelist[index]
+            consequence_variable = linguistic_variable_namelist[index+4]
+            Rule = self.CreateRule(antecedence, consequence, antecedence_variable, consequence_variable)
         return Rule
 
-    def CreateRule(self, antecedence_variables, consequence_variables, consequent_values):
-        antecedence = self.CreateAntecendence(antecedence_variables)
-        consequence = self.CreateConsequence(consequence_variables, consequent_values)
-        return self.ApplyRules(antecedence, consequence)
-
-    def ApplyRules(self, antecedence, consequence):
+    def CreateRule(self, antecedence, consequence, antecedence_variable, consequence_variable):
         Rule = []
+        self.CreateAntecendence(antecedence, antecedence_variable)
+        self.CreateConsequence(consequence, consequence_variable)
+        self.ApplyRules(antecedence, consequence, Rule)
+        return Rule
+
+    def ApplyRules(self, antecedence, consequence, Rule):
         for i in range(len(antecedence)):
             rule = f'IF ({antecedence[i]}) THEN ({consequence[i]})'
             Rule.append(rule)
-        return Rule
 
-    def CreateConsequence(self, consequence_variable, consequent_values):
-        consequence = []
-        for consequent_value in consequent_values:
-            consequence.append(f'{consequence_variable} IS {consequent_value}')
-        return consequence
+    def CreateConsequence(self, consequence, consequence_variable):
+        for consequence_value in self.GetController().get_fuzzy_sets(consequence_variable):    
+            consequence.append(f'{consequence_variable} IS {consequence_value._term}')
 
-    def CreateAntecendence(self, antecedence_variable):
-        antecedence = []
+    def CreateAntecendence(self, antecedence, antecedence_variable):
         for antecedence_value in self.GetController().get_fuzzy_sets(antecedence_variable):
-            antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')
-        return antecedence            
+            antecedence.append(f'{antecedence_variable} IS {antecedence_value._term}')            
         
     def SetVar(self, name, value):
         self.GetController().set_variable(name, value, verbose=self.GetLog())
@@ -133,6 +161,69 @@ class DroneController:
         
     def SetTheta(self, theta):
         self.SetVar("theta", theta)
+        
+    def CreateControlCurves(self):
+        try:
+            linguistic_variables, input_variables, output_variables = self.GetLinguisticTerms()
+            counter = 0
+            for input_variable in input_variables:
+                vector, output = self.SetupInputAndOutputVectors(linguistic_variables, 
+                                                                 output_variables, 
+                                                                 input_variable)
+                self.CreateOutputFilesAndPlot(vector, 
+                                              output, 
+                                              self.Capitalize(input_variable))
+                counter += 1
+        except Exception as e:
+            return e
+        finally:
+            return "Success!"
+
+    def CreateOutputFilesAndPlot(self, vector, output, input_variable_name):
+        self.SaveControlCurvePlot(vector, output, input_variable_name)
+        self.WriteIntoTextFile("control_curve_input.txt", input_variable_name, vector)
+        self.WriteIntoTextFile("control_curve_output.txt", input_variable_name, output)
+
+    def SetupInputAndOutputVectors(self, linguistic_variables, output_variables, input_variable):
+        vector = self.GenerateInputVector(linguistic_variables, input_variable)
+        output = self.GenerateOutputVector(output_variables, input_variable, vector)
+        return vector,output
+
+    def GetLinguisticTerms(self):
+        linguistic_variables = self.GetController()._lvs
+        input_variables = list(linguistic_variables)[0:4]
+        output_variables = list(linguistic_variables)[4:8]
+        return linguistic_variables,input_variables,output_variables
+
+    def GenerateInputVector(self, linguistic_variables, input_variable):
+        min, max = linguistic_variables[input_variable]._universe_of_discourse
+        vector = np.linspace(min, max, 1 + max - min)
+        return vector
+
+    def GenerateOutputVector(self, output_variables, input_variable, vector):
+        output = []
+        for i in vector:
+            self.SetVar(input_variable, i)
+            output.append(self.UpdateController(output_variables[0]))
+        return output
+
+    def Capitalize(self, input_variable):
+        input_variable_name = input_variable.capitalize()
+        return input_variable_name
+
+    def SaveControlCurvePlot(self, vector, output, input_variable_name):
+        plt.plot(vector, output)
+        plt.title(f"{input_variable_name} Control Curve")
+        plt.xlabel(f"Target's {input_variable_name} position [cm]")
+        plt.ylabel("Target's output velocity [cm/s]")
+        plt.legend([input_variable_name], loc="lower right", framealpha=1.0)
+        plt.savefig(f"Fuzzy controller images/Mamdani_fuzzy_{input_variable_name}.png")
+
+    def WriteIntoTextFile(self, filename, variable_name, array):
+        fileinput = open(f"{variable_name}_{filename}", "w+")
+        fileinput.write(','.join(map(str,array)))
+        fileinput.close()
+
 # getters
     
     def GetController(self) -> sf.FuzzySystem:
