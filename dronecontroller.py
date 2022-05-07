@@ -39,11 +39,11 @@ class ArucoTelloController():
         Theta_output = self.LoadFile("Theta_control_curve_output.txt")
         return [X_input, Y_input, Z_input, Theta_input], [X_output, Y_output, Z_output, Theta_output]
 
-    def CreateControllersFromArrays(self, controllerarrays):
-        self.Lateral_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][0], controllerarrays[1][0])
-        self.Vertical_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][1], controllerarrays[1][1])
-        self.Longitual_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][2], controllerarrays[1][2])
-        self.Yaw_Controller = self.CreateDictionaryWithArrayPairs(controllerarrays[0][3], controllerarrays[1][3])
+    def CreateControllersFromArrays(self, controller_arrays):
+        self.lateral_controller = self.CreateDictionaryWithArrayPairs(controller_arrays[0][0], controller_arrays[1][0])
+        self.vertical_controller = self.CreateDictionaryWithArrayPairs(controller_arrays[0][1], controller_arrays[1][1])
+        self.longitual_controller = self.CreateDictionaryWithArrayPairs(controller_arrays[0][2], controller_arrays[1][2])
+        self.yaw_controller = self.CreateDictionaryWithArrayPairs(controller_arrays[0][3], controller_arrays[1][3])
 
     def CreateDictionaryWithArrayPairs(self, input_array, output_array):
         return {input_array[i]:output_array[i] for i in range(len(input_array))}
@@ -55,7 +55,19 @@ class ArucoTelloController():
         return self.arucodetector
         
     def GetControllers(self):
-        return self.Lateral_Controller, self.Vertical_Controller, self.Longitual_Controller, self.Yaw_Controller
+        return self.lateral_controller, self.vertical_controller, self.longitual_controller, self.yaw_controller
+    
+    def GetLateralController(self):
+        return self.GetControllers()[0]
+    
+    def GetVerticalController(self):
+        return self.GetControllers()[1]
+
+    def GetLongitualController(self):
+        return self.GetControllers()[2]
+    
+    def GetYawController(self):
+        return self.GetControllers()[3]
     
     def Fly(self, takeoff=True):
         if takeoff:
@@ -87,7 +99,6 @@ class ArucoTelloController():
                 self.lock.acquire()
                 print(self.GetVelocityZ())
                 self.lock.release()
-            time.sleep(0.001)
         return 0
     
     def ControlDrone(self):
@@ -99,46 +110,62 @@ class ArucoTelloController():
         return 0
     
     def ControlPosition(self):
-        x, y, z, theta = self.GetControlPositions()
+        x, y, z, theta = self.GenerateControlSignals()
         print(x, y, z, theta)
-        self.SendControlPositionsToDrone(x, y, z, theta)
+        self.SendControlSignalsToTheDrone(x, y, z, theta)
 
-    def SendControlPositionsToDrone(self, x, y, z, theta):
+    def SendControlSignalsToTheDrone(self, x, y, z, theta):
         if x is not None:
             self.GetDetector().GetDrone().set_roll(x)
-        if y is not None:
-            self.GetDetector().GetDrone().set_throttle(y)
-        if z is not None:
-            self.GetDetector().GetDrone().set_pitch(z)
-        if theta is not None:
-            self.GetDetector().GetDrone().set_yaw(theta)
+        # if y is not None:
+            # self.GetDetector().GetDrone().set_throttle(y)
+        # if z is not None:
+            # self.GetDetector().GetDrone().set_pitch(z)
+        # if theta is not None:
+            # self.GetDetector().GetDrone().set_yaw(theta)
 
-    def GetControlPositions(self):
-        x = self.ControlLateralPosition(self.GetDetector().GetClosestMarkerByCameraX())
-        y = self.ControlVerticalPosition(self.GetDetector().GetClosestMarkerByCameraY())
-        z = self.ControlLongitualPosition(self.GetDetector().GetClosestMarkerByCameraZ())
-        theta = self.ControlYawAngle(self.GetDetector().GetClosestMarkerByCameraTheta())
-        return x,y,z,theta
+    def GetCameraPositions(self):
+        return (self.GetDetector().GetClosestMarkerByCameraX(),
+                self.GetDetector().GetClosestMarkerByCameraY(),
+                self.GetDetector().GetClosestMarkerByCameraZ(),
+                self.GetDetector().GetClosestMarkerByCameraTheta())
+
+    
+    def GenerateControlSignals(self):
+        x, y, z, theta = self.GetCameraPositions()
+        return (self.ControlLateralPosition(x), 
+                self.ControlVerticalPosition(y), 
+                self.ControlLongitualPosition(z), 
+                self.ControlYawAngle(theta))
     
     def ControlLateralPosition(self, x):
         if x is not None:
-            self.GetControllers().SetX(x)
-            return self.GetControllers().GetX()
+            x = self.EncapsulateBoundary(x, -100, 100)
+            return self.GetLateralController()[x]
+
     
     def ControlVerticalPosition(self, y):
         if y is not None:
-            self.GetControllers().SetY(y)
-            return self.GetControllers().GetY()
+            y = self.EncapsulateBoundary(y, -100, 100)
+            return self.GetVerticalController()[y]
     
     def ControlLongitualPosition(self, z):
         if z is not None:
-            self.GetControllers().SetZ(z)
-            return self.GetControllers().GetZ()
+            z = self.EncapsulateBoundary(z, 0, 60)
+            return self.GetLongitualController()[z]
 
     def ControlYawAngle(self, theta):
         if theta is not None:
-            self.GetControllers().SetTheta(theta)
-            return self.GetControllers().GetTheta()
+            theta = self.EncapsulateBoundary(theta, -70, 70)
+            return self.GetYawController()[theta]
+
+    def EncapsulateBoundary(self, x, minimum, maximum):
+        if x < minimum:
+            return minimum
+        elif x > maximum:
+            return maximum
+        else:
+            return x
     
     def Run(self, run=True, fly = False):
         self.Fly(fly)
