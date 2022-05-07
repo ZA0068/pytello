@@ -168,7 +168,7 @@ class DroneController:
             counter = 0
             for input_variable in input_variables:
                 vector, output = self.SetupInputAndOutputVectors(linguistic_variables, 
-                                                                 output_variables, 
+                                                                 output_variables[counter], 
                                                                  input_variable)
                 self.CreateOutputFilesAndPlot(vector, 
                                               output, 
@@ -184,10 +184,10 @@ class DroneController:
         self.WriteIntoTextFile("control_curve_input.txt", input_variable_name, vector)
         self.WriteIntoTextFile("control_curve_output.txt", input_variable_name, output)
 
-    def SetupInputAndOutputVectors(self, linguistic_variables, output_variables, input_variable):
+    def SetupInputAndOutputVectors(self, linguistic_variables, output_variable, input_variable):
         vector = self.GenerateInputVector(linguistic_variables, input_variable)
-        output = self.GenerateOutputVector(output_variables, input_variable, vector)
-        return vector,output
+        output = self.GenerateOutputVector(output_variable, input_variable, vector)
+        return vector, output
 
     def GetLinguisticTerms(self):
         linguistic_variables = self.GetController()._lvs
@@ -200,11 +200,11 @@ class DroneController:
         vector = np.linspace(min, max, 1 + max - min)
         return vector
 
-    def GenerateOutputVector(self, output_variables, input_variable, vector):
+    def GenerateOutputVector(self, output_variable, input_variable, vector):
         output = []
         for i in vector:
             self.SetVar(input_variable, i)
-            output.append(self.UpdateController(output_variables[0]))
+            output.append(self.UpdateController(output_variable))
         return output
 
     def Capitalize(self, input_variable):
@@ -218,6 +218,7 @@ class DroneController:
         plt.ylabel("Target's output velocity [cm/s]")
         plt.legend([input_variable_name], loc="lower right", framealpha=1.0)
         plt.savefig(f"Fuzzy controller images/Mamdani_fuzzy_{input_variable_name}.png")
+        plt.close()
 
     def WriteIntoTextFile(self, filename, variable_name, array):
         fileinput = open(f"{variable_name}_{filename}", "w+")

@@ -1,11 +1,9 @@
 from Arucodetector import Arucodetector
-from Controller import DroneController
-import os
 import time
 import concurrent.futures
 import threading
 import psutil
-import sys
+import numpy as np
 class ArucoTelloController():
     def __init__(self):
         self.arucodetector = None
@@ -24,8 +22,11 @@ class ArucoTelloController():
         self.arucodetector.Setup()
         self.arucodetector.ConnectDrone()
     
+    def LoadFile(self, filename):
+        return np.loadtxt(filename, delimiter=',')
+    
     def SetController(self):
-        self.dronecontroller = DroneController()
+        
         self.dronecontroller.Setup()
     
     def GetDetector(self):
