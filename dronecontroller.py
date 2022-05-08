@@ -114,20 +114,20 @@ class ArucoTelloController():
         self.SendControlSignalsToTheDrone(x, y, z, theta)
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
-        if x is not None:
-            self.GetDetector().GetDrone().set_roll(x)
-        if y is not None:
-            self.GetDetector().GetDrone().set_throttle(y)
-        # if z is not None:
-            # self.GetDetector().GetDrone().set_pitch(z)
-        # if theta is not None:
-            # self.GetDetector().GetDrone().set_yaw(theta)
+        # if x is not None:
+        #     self.GetDetector().GetDrone().set_roll(-x)
+        # if y is not None:
+        #     self.GetDetector().GetDrone().set_throttle(-y)
+        if z is not None:
+            self.GetDetector().GetDrone().set_pitch(-z)
+        if theta is not None:
+            self.GetDetector().GetDrone().set_yaw(-theta)
 
     def GetCameraPositions(self):
-        return (self.GetDetector().GetClosestMarkerByCameraX(),
-                self.GetDetector().GetClosestMarkerByCameraY(),
-                self.GetDetector().GetClosestMarkerByCameraZ(),
-                self.GetDetector().GetClosestMarkerByCameraTheta())
+        return (self.GetDetector().GetClosestMarkerByCameraX(False),
+                self.GetDetector().GetClosestMarkerByCameraY(False),
+                self.GetDetector().GetClosestMarkerByCameraZ(False),
+                self.GetDetector().GetClosestMarkerByCameraTheta(False))
 
     
     def GenerateControlSignals(self):
@@ -177,7 +177,7 @@ class ArucoTelloController():
             except Exception as e:
                 return e
             finally:
-                return self.detectorprocessor.result() , self.velocitythread.result(), self.controllerthread.result()
+                return self.detectorprocessor.result(), self.velocitythread.result(), self.controllerthread.result()
         else:
             return "Complete!", 0, 0
     
