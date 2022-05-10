@@ -400,7 +400,7 @@ class Arucodetector:
         self.corners, self.ids, self.rejected = cv.aruco.detectMarkers(
             image           = self.ConvertImageToGrayscale(image), 
             dictionary      = self.GetDictionary(),
-            parameters      =self.GetParameters(),
+            parameters      = self.GetParameters(),
             cameraMatrix    = self.GetCameraMatrix(),
             distCoeff       = self.GetDistortionCoefficients())
 
