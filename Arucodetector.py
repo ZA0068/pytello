@@ -244,14 +244,20 @@ class Arucodetector:
         return f"{name} {coord[0]}=%4.0f  {coord[1]}=%4.0f  {coord[2]}=%4.0f"%(vec(index)[0], vec(index)[1], vec(index)[2])
 
     def GetMarkerRotationVector(self, index) -> np.array:
-        if self.GetRotoTranslationVector() is None:
-            return None
-        return self.GetRotoTranslationVector()[0][index, 0, :]
+        try:
+            if self.GetRotoTranslationVector() is None:
+                return None
+            return self.GetRotoTranslationVector()[0][index, 0, :]
+        except:
+            return self.GetRotoTranslationVector()[0][index-1, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
-        if self.GetRotoTranslationVector() is None:
-            return None
-        return self.GetRotoTranslationVector()[1][index, 0, :]
+        try:
+            if self.GetRotoTranslationVector() is None:
+                return None
+            return self.GetRotoTranslationVector()[1][index, 0, :]
+        except:
+            return self.GetRotoTranslationVector()[0][index-1, 0, :]
 
     def GetMarkerXPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[0] 
@@ -311,7 +317,7 @@ class Arucodetector:
         time.sleep(0.0001)
         vel2 = function()
         if vel1 != None and vel2 != None:
-            return (float(vel2) - float(vel1))/(time.time() - starttime)
+            return (float(vel2) - float(vel1))/(time.time() - starttime)*0.1
         return 0.0
     
     def GetConnectionFailureFlag(self):

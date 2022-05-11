@@ -179,7 +179,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
         
     def test_Drone_Live_Flight(self):
-        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = False)
+        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = True)
         self.assertEqual(detector_return_value, "Complete!")
         self.assertEqual(velocity_return_value, 0)
         self.assertEqual(control_return_value, 0)

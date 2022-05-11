@@ -108,15 +108,15 @@ class ArucoTelloController():
     
     def ControlPosition(self):
         x, y, z, theta = self.GenerateControlSignals()
-        # self.SendControlSignalsToTheDrone(x, y, z, theta)
+        self.SendControlSignalsToTheDrone(x, y, z, theta)
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
-        # if x is not None:
-        #     self.GetDetector().GetDrone().set_roll(-x)
-        # if y is not None:
-        #     self.GetDetector().GetDrone().set_throttle(-y)
-        if z is not None:
-            self.GetDetector().GetDrone().set_pitch(-z)
+        if x is not None:
+            self.GetDetector().GetDrone().set_roll(x)
+        if y is not None:
+            self.GetDetector().GetDrone().set_throttle(-y)
+        # if z is not None:
+        #     self.GetDetector().GetDrone().set_pitch(-z)
         if theta is not None:
             self.GetDetector().GetDrone().set_yaw(-theta)
 
