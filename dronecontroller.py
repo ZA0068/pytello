@@ -115,8 +115,8 @@ class ArucoTelloController():
             self.GetDetector().GetDrone().set_roll(x)
         if y is not None:
             self.GetDetector().GetDrone().set_throttle(-y)
-        # if z is not None:
-        #     self.GetDetector().GetDrone().set_pitch(-z)
+        if z is not None:
+            self.GetDetector().GetDrone().set_pitch(-z)
         if theta is not None:
             self.GetDetector().GetDrone().set_yaw(-theta)
 
