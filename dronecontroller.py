@@ -79,27 +79,24 @@ class ArucoTelloController():
         steps_size_for_resolution = 5
         for i in range(steps_size_for_resolution):
             sum_of_velocities += self.GetDetector().GetVelocity(function)
-        return sum_of_velocities/steps_size_for_resolution
+        return round(sum_of_velocities/steps_size_for_resolution, 2)
     
     def GetVelocityX(self):
-        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraX)
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerX)
     
     def GetVelocityY(self):
-        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraY)
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerY)
     
     def GetVelocityZ(self):
-        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraZ)
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerZ)
     
     def GetVelocityTheta(self):
-        return self.GetVelocity(self.GetDetector().GetClosestMarkerByCameraTheta)
+        return self.GetVelocity(self.GetDetector().GetClosestMarkerTheta)
     
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-                self.GetVelocityX()
-                self.GetVelocityY()
-                self.GetVelocityZ()
-                self.GetVelocityTheta()
+                print(self.GetVelocityX(), self.GetVelocityY(), self.GetVelocityZ(), self.GetVelocityTheta())
             time.sleep(0.001)
         return 0
     
@@ -111,7 +108,7 @@ class ArucoTelloController():
     
     def ControlPosition(self):
         x, y, z, theta = self.GenerateControlSignals()
-        self.SendControlSignalsToTheDrone(x, y, z, theta)
+        # self.SendControlSignalsToTheDrone(x, y, z, theta)
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
         # if x is not None:
@@ -124,10 +121,10 @@ class ArucoTelloController():
             self.GetDetector().GetDrone().set_yaw(-theta)
 
     def GetCameraPositions(self):
-        return (self.GetDetector().GetClosestMarkerByCameraX(False),
-                self.GetDetector().GetClosestMarkerByCameraY(False),
-                self.GetDetector().GetClosestMarkerByCameraZ(False),
-                self.GetDetector().GetClosestMarkerByCameraTheta(False))
+        return (self.GetDetector().GetClosestMarkerX(False),
+                self.GetDetector().GetClosestMarkerY(False),
+                self.GetDetector().GetClosestMarkerZ(False),
+                self.GetDetector().GetClosestMarkerTheta(False))
 
     
     def GenerateControlSignals(self):

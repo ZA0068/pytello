@@ -208,25 +208,25 @@ class Arucodetector:
             return function(self.GetClosestMarkerIndex())
         return None
         
-    def GetClosestMarkerByCameraX(self, camera=True):
+    def GetClosestMarkerX(self, camera=False):
         if camera:
             return self.GetClosestMarkerByCamera(self.GetCameraXPosition)
         return self.GetClosestMarkerByCamera(self.GetMarkerXPosition)
         
 
-    def GetClosestMarkerByCameraY(self, camera=True):
+    def GetClosestMarkerY(self, camera=False):
         if camera:
             return self.GetClosestMarkerByCamera(self.GetCameraYPosition)
         return self.GetClosestMarkerByCamera(self.GetMarkerYPosition)
 
 
-    def GetClosestMarkerByCameraZ(self, camera=True):
+    def GetClosestMarkerZ(self, camera=False):
         if camera:
             return self.GetClosestMarkerByCamera(self.GetCameraZPosition)
         return self.GetClosestMarkerByCamera(self.GetMarkerZPosition)
 
 
-    def GetClosestMarkerByCameraTheta(self, camera=True):
+    def GetClosestMarkerTheta(self, camera=False):
         if camera:
             return self.GetClosestMarkerByCamera(self.GetCameraYaw)
         return self.GetClosestMarkerByCamera(self.GetMarkerTheta)
@@ -311,7 +311,7 @@ class Arucodetector:
         time.sleep(0.0001)
         vel2 = function()
         if vel1 != None and vel2 != None:
-            return round((float(vel2) - float(vel1))/(time.time() - starttime)/60, 2)
+            return (float(vel2) - float(vel1))/(time.time() - starttime)
         return 0.0
     
     def GetConnectionFailureFlag(self):

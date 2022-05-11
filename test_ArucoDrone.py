@@ -154,22 +154,22 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsNotNone(self.drone.GetDetector().GetClosestMarker())
         
     def test_Drone_Live_X(self):
-        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraX(), 0.0, delta = 2)
-        self.assertAlmostEqual(self.drone.ControlX(self.drone.GetDetector().GetClosestMarkerByCameraX()), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerX(), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.ControlX(self.drone.GetDetector().GetClosestMarkerX()), 0.0, delta = 2)
  
     def test_Drone_Live_Y(self):
-        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraY(), 0.0, delta = 2)
-        self.assertAlmostEqual(self.drone.ControlY(self.drone.GetDetector().GetClosestMarkerByCameraY()), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerY(), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.ControlY(self.drone.GetDetector().GetClosestMarkerY()), 0.0, delta = 2)
 
  
     def test_Drone_Live_Z(self):
-        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraZ(), 30.0, delta = 2)
-        self.assertAlmostEqual(self.drone.ControlZ(self.drone.GetDetector().GetClosestMarkerByCameraZ()), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerZ(), 30.0, delta = 2)
+        self.assertAlmostEqual(self.drone.ControlZ(self.drone.GetDetector().GetClosestMarkerZ()), 0.0, delta = 2)
     
 
     def test_Drone_Live_Theta(self):
-        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerByCameraTheta(), 0.0, delta = 2)
-        self.assertAlmostEqual(self.drone.ControlTheta(self.drone.GetDetector().GetClosestMarkerByCameraTheta()), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.GetDetector().GetClosestMarkerTheta(), 0.0, delta = 2)
+        self.assertAlmostEqual(self.drone.ControlTheta(self.drone.GetDetector().GetClosestMarkerTheta()), 0.0, delta = 2)
 
  
     def test_Drone_Live_Velocity(self):
@@ -179,7 +179,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertIsInstance(self.drone.GetVelocityTheta(), float)
         
     def test_Drone_Live_Flight(self):
-        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = True)
+        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = False)
         self.assertEqual(detector_return_value, "Complete!")
         self.assertEqual(velocity_return_value, 0)
         self.assertEqual(control_return_value, 0)
