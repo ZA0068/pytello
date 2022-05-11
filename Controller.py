@@ -91,14 +91,14 @@ class DroneController:
     
     
         Outputs_Z = []
-        Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "slow_reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "slow_forward", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "forward", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "fast_forward", verbose = self.GetLog()))
-        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-1.0, 1.0])
+        Outputs_Z.append(sf.FuzzySet(points=[[-0.5, 1.0], [-0.3, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.5, -0.3, -0.1), term = "reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.3, -0.1, -0.0), term = "slow_reverse", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.2), term = "stop", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.1, 0.3), term = "slow_forward", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.1, 0.3, 0.5), term = "forward", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(points=[[0.3, 0.0], [0.5, 1.0]], term = "fast_forward", verbose = self.GetLog()))
+        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-0.5, 0.5])
         self.GetController().add_linguistic_variable("output_z", lv_Z, verbose = self.GetLog())
     
         Outputs_Theta = []
