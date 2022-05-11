@@ -94,7 +94,7 @@ class DroneController:
         Outputs_Z.append(sf.FuzzySet(points=[[-0.5, 1.0], [-0.3, 0.0]], term = "fast_reverse", verbose = self.GetLog()))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.5, -0.3, -0.1), term = "reverse", verbose = self.GetLog()))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.3, -0.1, -0.0), term = "slow_reverse", verbose = self.GetLog()))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.2), term = "stop", verbose = self.GetLog()))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.1, 0.3), term = "slow_forward", verbose = self.GetLog()))
         Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.1, 0.3, 0.5), term = "forward", verbose = self.GetLog()))
         Outputs_Z.append(sf.FuzzySet(points=[[0.3, 0.0], [0.5, 1.0]], term = "fast_forward", verbose = self.GetLog()))
