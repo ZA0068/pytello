@@ -1,3 +1,4 @@
+from math import sqrt
 from Arucodetector import Arucodetector
 import time
 import concurrent.futures
@@ -96,7 +97,7 @@ class ArucoTelloController():
     def UpdateVelocity(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-                print(self.GetVelocityX(), self.GetVelocityY(), self.GetVelocityZ(), self.GetVelocityTheta())
+               print(sqrt(self.GetVelocityX()**2 + self.GetVelocityY()**2 + self.GetVelocityZ()**2))
             time.sleep(0.001)
         return 0
     
