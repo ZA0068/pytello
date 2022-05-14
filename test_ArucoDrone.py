@@ -185,7 +185,7 @@ class TestDroneControllerLive(unittest.TestCase):
         self.assertEqual(control_return_value, 0)
         
     def test_DRone_Live_Flight_PrintPos(self):
-        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = True)
+        detector_return_value, velocity_return_value, control_return_value = self.drone.Run(fly = False)
         self.assertEqual(detector_return_value, "Complete!")
         self.assertEqual(velocity_return_value, 0)
         self.assertEqual(control_return_value, 0)

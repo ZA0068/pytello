@@ -19,6 +19,7 @@ class ArucoTelloController():
         self.Theta_vec = []
         self.pid = -1
         self.lock = threading.Lock()
+        self.controllock = threading.Lock()
         self.is_plottng_done = False
         
     def Setup(self, set_detector=True, set_controller=True):
@@ -131,27 +132,37 @@ class ArucoTelloController():
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
         if x is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_roll(x)
+            self.controllock.release()
         if y is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_throttle(-y)
+            self.controllock.release()
         if z is not None:
-            self.GetDetector().GetDrone().set_pitch(-z)
+            self.controllock.acquire()
+            self.GetDetector().GetDrone().set_pitch(z)
+            self.controllock.release()
         if theta is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_yaw(-theta)
+            self.controllock.release()
 
     def GetCameraPositions(self):
-        return (self.GetDetector().GetClosestMarkerX(False),
-                self.GetDetector().GetClosestMarkerY(False),
-                self.GetDetector().GetClosestMarkerZ(False),
-                self.GetDetector().GetClosestMarkerTheta(False))
+        x = self.GetDetector().GetClosestMarkerX(False)
+        y = self.GetDetector().GetClosestMarkerY(False)
+        z = self.GetDetector().GetClosestMarkerZ(False)
+        theta = self.GetDetector().GetClosestMarkerTheta(False)
+        return x, y, z, theta
 
     
     def GenerateControlSignals(self):
-        x, y, z, theta = self.GetCameraPositions()
-        return (self.ControlLateralPosition(x), 
-                self.ControlVerticalPosition(y), 
-                self.ControlLongitualPosition(z), 
-                self.ControlYawAngle(theta))
+        _x, _y, _z, _theta = self.GetCameraPositions()
+        x = self.ControlLateralPosition(_x), 
+        y = self.ControlVerticalPosition(_y), 
+        z = self.ControlLongitualPosition(_z), 
+        theta = self.ControlYawAngle(_theta)
+        return x, y, z, theta
     
     def ControlLateralPosition(self, x):
         if x is not None:
