@@ -60,21 +60,18 @@ class ArucoTelloController():
     
     def GetDetector(self):
         return self.arucodetector
-        
-    def GetControllers(self):
-        return self.lateral_controller, self.vertical_controller, self.longitual_controller, self.yaw_controller
     
     def GetLateralController(self):
-        return self.GetControllers()[0]
+        return self.lateral_controller
     
     def GetVerticalController(self):
-        return self.GetControllers()[1]
+        return self.vertical_controller
 
     def GetLongitualController(self):
-        return self.GetControllers()[2]
+        return self.longitual_controller
     
     def GetYawController(self):
-        return self.GetControllers()[3]
+        return self.yaw_controller
     
     def Fly(self, takeoff=True):
         if takeoff:
@@ -101,20 +98,32 @@ class ArucoTelloController():
         return self.GetVelocity(self.GetDetector().GetClosestMarkerTheta)
     
     def AppendPositionsInVector(self):
-        while self.GetDetector().IsDroneStreaming():
-            if self.GetDetector().IsMarkerDetected():
-                self.X_vec.append(self.GetDetector().GetClosestMarkerX())
-                self.Y_vec.append(self.GetDetector().GetClosestMarkerY())
-                self.Z_vec.append(self.GetDetector().GetClosestMarkerZ())
-                self.Theta_vec.append(self.GetDetector().GetClosestMarkerTheta())
-            time.sleep(0.01)
-        return 0
+        try:
+            while self.GetDetector().IsDroneStreaming():
+                if self.GetDetector().IsMarkerDetected():
+                    self.X_vec.append(self.GetDetector().GetClosestMarkerX())
+                    self.Y_vec.append(self.GetDetector().GetClosestMarkerY())
+                    self.Z_vec.append(self.GetDetector().GetClosestMarkerZ())
+                    self.Theta_vec.append(self.GetDetector().GetClosestMarkerTheta())
+                time.sleep(0.01)
+        except:
+                self.GetDetector().End()
+                self.End()
+                return -1
+        finally:
+            return 0
     
     def ControlDrone(self):
-        while self.GetDetector().IsDroneStreaming():
-            self.ControlPosition()
-            time.sleep(0.001)
-        return 0
+        try:
+            while self.GetDetector().IsDroneStreaming():
+                self.ControlPosition()
+                time.sleep(0.001)
+        except:
+            self.GetDetector().End()
+            self.End()
+            return -1
+        finally:
+            return 0
     
     def ControlPosition(self):
         x, y, z, theta = self.GenerateControlSignals()
