@@ -1,5 +1,6 @@
 from math import sqrt
 from Arucodetector import Arucodetector
+import matplotlib.pyplot as plt
 import time
 import concurrent.futures
 import threading
@@ -10,10 +11,16 @@ class ArucoTelloController():
         self.arucodetector = None
         self.dronecontroller = None
         self.detectorprocessor = None
-        self.velocitythread = None
+        self.positionthread = None
         self.controllerthread = None
+        self.X_vec = []
+        self.Y_vec = []
+        self.Z_vec = []
+        self.Theta_vec = []
         self.pid = -1
         self.lock = threading.Lock()
+        self.controllock = threading.Lock()
+        self.is_plottng_done = False
         
     def Setup(self, set_detector=True, set_controller=True):
         if set_detector:
@@ -54,21 +61,18 @@ class ArucoTelloController():
     
     def GetDetector(self):
         return self.arucodetector
-        
-    def GetControllers(self):
-        return self.lateral_controller, self.vertical_controller, self.longitual_controller, self.yaw_controller
     
     def GetLateralController(self):
-        return self.GetControllers()[0]
+        return self.lateral_controller
     
     def GetVerticalController(self):
-        return self.GetControllers()[1]
+        return self.vertical_controller
 
     def GetLongitualController(self):
-        return self.GetControllers()[2]
+        return self.longitual_controller
     
     def GetYawController(self):
-        return self.GetControllers()[3]
+        return self.yaw_controller
     
     def Fly(self, takeoff=True):
         if takeoff:
@@ -94,18 +98,33 @@ class ArucoTelloController():
     def GetVelocityTheta(self):
         return self.GetVelocity(self.GetDetector().GetClosestMarkerTheta)
     
-    def UpdateVelocity(self):
-        while self.GetDetector().IsDroneStreaming():
-            if self.GetDetector().IsMarkerDetected():
-               print(sqrt(self.GetVelocityX()**2 + self.GetVelocityY()**2 + self.GetVelocityZ()**2))
-            time.sleep(0.001)
-        return 0
+    def AppendPositionsInVector(self):
+        try:
+            while self.GetDetector().IsDroneStreaming():
+                if self.GetDetector().IsMarkerDetected():
+                    self.X_vec.append(self.GetDetector().GetClosestMarkerX())
+                    self.Y_vec.append(self.GetDetector().GetClosestMarkerY())
+                    self.Z_vec.append(self.GetDetector().GetClosestMarkerZ())
+                    self.Theta_vec.append(self.GetDetector().GetClosestMarkerTheta())
+                time.sleep(0.01)
+        except:
+                self.GetDetector().End()
+                self.End()
+                return -1
+        finally:
+            return 0
     
     def ControlDrone(self):
-        while self.GetDetector().IsDroneStreaming():
-            self.ControlPosition()
-            time.sleep(0.001)
-        return 0
+        try:
+            while self.GetDetector().IsDroneStreaming():
+                self.ControlPosition()
+                time.sleep(0.001)
+        except:
+            self.GetDetector().End()
+            self.End()
+            return -1
+        finally:
+            return 0
     
     def ControlPosition(self):
         x, y, z, theta = self.GenerateControlSignals()
@@ -113,27 +132,37 @@ class ArucoTelloController():
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
         if x is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_roll(x)
+            self.controllock.release()
         if y is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_throttle(-y)
+            self.controllock.release()
         if z is not None:
-            self.GetDetector().GetDrone().set_pitch(-z)
+            self.controllock.acquire()
+            self.GetDetector().GetDrone().set_pitch(z)
+            self.controllock.release()
         if theta is not None:
+            self.controllock.acquire()
             self.GetDetector().GetDrone().set_yaw(-theta)
+            self.controllock.release()
 
     def GetCameraPositions(self):
-        return (self.GetDetector().GetClosestMarkerX(False),
-                self.GetDetector().GetClosestMarkerY(False),
-                self.GetDetector().GetClosestMarkerZ(False),
-                self.GetDetector().GetClosestMarkerTheta(False))
+        x = self.GetDetector().GetClosestMarkerX(False)
+        y = self.GetDetector().GetClosestMarkerY(False)
+        z = self.GetDetector().GetClosestMarkerZ(False)
+        theta = self.GetDetector().GetClosestMarkerTheta(False)
+        return x, y, z, theta
 
     
     def GenerateControlSignals(self):
-        x, y, z, theta = self.GetCameraPositions()
-        return (self.ControlLateralPosition(x), 
-                self.ControlVerticalPosition(y), 
-                self.ControlLongitualPosition(z), 
-                self.ControlYawAngle(theta))
+        _x, _y, _z, _theta = self.GetCameraPositions()
+        x = self.ControlLateralPosition(_x), 
+        y = self.ControlVerticalPosition(_y), 
+        z = self.ControlLongitualPosition(_z), 
+        theta = self.ControlYawAngle(_theta)
+        return x, y, z, theta
     
     def ControlLateralPosition(self, x):
         if x is not None:
@@ -170,14 +199,31 @@ class ArucoTelloController():
                 self.Fly(fly)
                 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
                     self.detectorprocessor = executor.submit(self.GetDetector().Run)
-                    self.velocitythread = executor.submit(self.UpdateVelocity)
+                    self.positionthread = executor.submit(self.AppendPositionsInVector)
                     self.controllerthread = executor.submit(self.ControlDrone)
             except Exception as e:
                 return e
             finally:
-                return self.detectorprocessor.result(), self.velocitythread.result(), self.controllerthread.result()
+                self.PlotPositions()
+                return self.detectorprocessor.result(), self.positionthread.result(), self.controllerthread.result()
         else:
             return "Complete!", 0, 0
+    
+    def PlotPositions(self):
+        self.X_vec = np.array(self.X_vec)
+        self.Y_vec = np.array(self.Y_vec)
+        self.Z_vec = np.array(self.Z_vec)
+        self.Theta_vec = np.array(self.Theta_vec)
+        plt.plot(self.X_vec, label="X")
+        plt.plot(self.Y_vec, label="Y")
+        plt.plot(self.Z_vec, label="Z")
+        plt.plot(self.Theta_vec, label="Theta")
+        plt.legend(loc="upper left")
+        plt.xlabel("timestep")
+        plt.ylabel("distance to the marker")
+        plt.savefig("Fuzzy controller images/positions.png")
+        self.is_plottng_done = True
+                
     
     def End(self):
         if self.GetDetector().IsDroneConnected():
