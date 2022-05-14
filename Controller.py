@@ -45,14 +45,14 @@ class DroneController:
         self.GetController().add_linguistic_variable("y", lv_Y)
 
         Input_Z = []
-        Input_Z.append(sf.FuzzySet(function=sf.Sigmoid_MF(80, 1), term = "too_far", verbose = True))
-        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(70, 5), term = "far", verbose = True))
-        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(60, 5), term = "slightly_far", verbose = True))
-        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(50, 5), term = "perfect", verbose = True))
-        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(40, 5), term = "slightly_close", verbose = True))
-        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(30, 5), term = "close", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Sigmoid_MF(150, 1), term = "too_far", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(120, 5), term = "far", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(100, 5), term = "slightly_far", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(80, 5), term = "perfect", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(60, 5), term = "slightly_close", verbose = True))
+        Input_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(40, 5), term = "close", verbose = True))
         Input_Z.append(sf.FuzzySet(function=sf.InvSigmoid_MF(20, 0.8), term = "too_close", verbose = True))
-        lv_Z = sf.LinguisticVariable(Input_Z, concept = "Difference in marker distance in longittual axis", universe_of_discourse = [0, 80])
+        lv_Z = sf.LinguisticVariable(Input_Z, concept = "Difference in marker distance in longittual axis", universe_of_discourse = [0, 150])
         self.GetController().add_linguistic_variable("z", lv_Z)
 
         Input_Theta = []
@@ -91,14 +91,14 @@ class DroneController:
     
     
         Outputs_Z = []
-        Outputs_Z.append(sf.FuzzySet(points=[[-0.5, 1.0], [-0.3, 0.0]], term = "fast_reverse"))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.5, -0.3, -0.1), term = "reverse"))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.3, -0.1, -0.0), term = "slow_reverse"))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.05), term = "stop"))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.1, 0.3), term = "slow_forward"))
-        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.1, 0.3, 0.5), term = "forward"))
-        Outputs_Z.append(sf.FuzzySet(points=[[0.3, 0.0], [0.5, 1.0]], term = "fast_forward"))
-        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-0.5, 0.5])
+        Outputs_Z.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "fast_reverse"))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "reverse"))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "slow_reverse"))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop"))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "slow_forward"))
+        Outputs_Z.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "forward"))
+        Outputs_Z.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "fast_forward"))
+        lv_Z = sf.LinguisticVariable(Outputs_Z, concept = "Velocity in longitual(z) axis", universe_of_discourse = [-1.0, 1.0])
         self.GetController().add_linguistic_variable("output_z", lv_Z)
     
         Outputs_Theta = []
