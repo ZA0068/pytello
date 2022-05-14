@@ -21,15 +21,15 @@ def main():
     # finally:
     #     drone.End()
     #     # cv.destroyAllWindows()
-        Outputs_Y = []
-        Outputs_Y.append(sf.FuzzySet(points=[[-0.6, 1.0], [-0.4, 0.0]], term = "ascend_hard"))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.4, -0.2), term = "ascend"))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.4, -0.2, -0.0), term = "ascend_light"))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "hover"))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.2, 0.4), term = "descend_light"))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.2, 0.4, 0.6), term = "descend"))
-        Outputs_Y.append(sf.FuzzySet(points=[[0.4, 0.0], [0.6, 1.0]], term = "descend_hard"))
-        lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-0.6, 0.6])
-        lv_Y.plot()
+        Outputs_X = []
+        Outputs_X.append(sf.FuzzySet(points=[[-0.6, 1.0], [-0.4, 0.0]], term = "hard_left"))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.4, -0.2), term = "left"))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.4, -0.2, -0.0), term = "soft_left"))
+        Outputs_X.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop"))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.2, 0.4), term = "soft_right"))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.2, 0.4, 0.6), term = "right"))
+        Outputs_X.append(sf.FuzzySet(points=[[0.4, 0.0], [0.6, 1.0]], term = "hard_right"))
+        lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-0.6, 0.6])
+        lv_X.plot()
 if __name__ == '__main__':
     main()
