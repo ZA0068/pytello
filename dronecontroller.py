@@ -1,5 +1,6 @@
 from math import sqrt
 from Arucodetector import Arucodetector
+import matplotlib.pyplot as plt
 import time
 import concurrent.futures
 import threading
@@ -10,10 +11,15 @@ class ArucoTelloController():
         self.arucodetector = None
         self.dronecontroller = None
         self.detectorprocessor = None
-        self.velocitythread = None
+        self.positionthread = None
         self.controllerthread = None
+        self.X_vec = []
+        self.Y_vec = []
+        self.Z_vec = []
+        self.Theta_vec = []
         self.pid = -1
         self.lock = threading.Lock()
+        self.is_plottng_done = False
         
     def Setup(self, set_detector=True, set_controller=True):
         if set_detector:
@@ -94,11 +100,14 @@ class ArucoTelloController():
     def GetVelocityTheta(self):
         return self.GetVelocity(self.GetDetector().GetClosestMarkerTheta)
     
-    def UpdateVelocity(self):
+    def AppendPositionsInVector(self):
         while self.GetDetector().IsDroneStreaming():
             if self.GetDetector().IsMarkerDetected():
-               print(sqrt(self.GetVelocityX()**2 + self.GetVelocityY()**2 + self.GetVelocityZ()**2))
-            time.sleep(0.001)
+                self.X_vec.append(self.GetDetector().GetClosestMarkerX())
+                self.Y_vec.append(self.GetDetector().GetClosestMarkerY())
+                self.Z_vec.append(self.GetDetector().GetClosestMarkerZ())
+                self.Theta_vec.append(self.GetDetector().GetClosestMarkerTheta())
+            time.sleep(0.01)
         return 0
     
     def ControlDrone(self):
@@ -170,14 +179,31 @@ class ArucoTelloController():
                 self.Fly(fly)
                 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
                     self.detectorprocessor = executor.submit(self.GetDetector().Run)
-                    self.velocitythread = executor.submit(self.UpdateVelocity)
+                    self.positionthread = executor.submit(self.AppendPositionsInVector)
                     self.controllerthread = executor.submit(self.ControlDrone)
             except Exception as e:
                 return e
             finally:
-                return self.detectorprocessor.result(), self.velocitythread.result(), self.controllerthread.result()
+                self.PlotPositions()
+                return self.detectorprocessor.result(), self.positionthread.result(), self.controllerthread.result()
         else:
             return "Complete!", 0, 0
+    
+    def PlotPositions(self):
+        self.X_vec = np.array(self.X_vec)
+        self.Y_vec = np.array(self.Y_vec)
+        self.Z_vec = np.array(self.Z_vec)
+        self.Theta_vec = np.array(self.Theta_vec)
+        plt.plot(self.X_vec, label="X")
+        plt.plot(self.Y_vec, label="Y")
+        plt.plot(self.Z_vec, label="Z")
+        plt.plot(self.Theta_vec, label="Theta")
+        plt.legend(loc="upper left")
+        plt.xlabel("timestep")
+        plt.ylabel("distance to the marker")
+        plt.show()
+        self.is_plottng_done = True
+                
     
     def End(self):
         if self.GetDetector().IsDroneConnected():

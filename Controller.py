@@ -68,25 +68,25 @@ class DroneController:
 
     def SetOutputs(self):       
         Outputs_X = []
-        Outputs_X.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "hard_left", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "left", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "soft_left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(points=[[-0.6, 1.0], [-0.4, 0.0]], term = "hard_left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.4, -0.2), term = "left", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(-0.4, -0.2, -0.0), term = "soft_left", verbose = self.GetLog()))
         Outputs_X.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "stop", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "soft_right", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "right", verbose = self.GetLog()))
-        Outputs_X.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "hard_right", verbose = self.GetLog()))
-        lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-1.0, 1.0])
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.2, 0.4), term = "soft_right", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(function=sf.Triangular_MF(0.2, 0.4, 0.6), term = "right", verbose = self.GetLog()))
+        Outputs_X.append(sf.FuzzySet(points=[[0.4, 0.0], [0.6, 1.0]], term = "hard_right", verbose = self.GetLog()))
+        lv_X = sf.LinguisticVariable(Outputs_X, concept = "Velocity in lateral(x) axis", universe_of_discourse = [-0.6, 0.6])
         self.GetController().add_linguistic_variable("output_x", lv_X, verbose = self.GetLog())
         
         Outputs_Y = []
-        Outputs_Y.append(sf.FuzzySet(points=[[-1.0, 1.0], [-0.8, 0.0]], term = "ascend_hard", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-1.0, -0.7, -0.4), term = "ascend", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.3, -0.0), term = "ascend_light", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(points=[[-0.6, 1.0], [-0.4, 0.0]], term = "ascend_hard", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.6, -0.4, -0.2), term = "ascend", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(-0.4, -0.2, -0.0), term = "ascend_light", verbose = self.GetLog()))
         Outputs_Y.append(sf.FuzzySet(function=sf.Gaussian_MF(0, 0.1), term = "hover", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.3, 0.6), term = "descend_light", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.4, 0.7, 1.0), term = "descend", verbose = self.GetLog()))
-        Outputs_Y.append(sf.FuzzySet(points=[[0.8, 0.0], [1.0, 1.0]], term = "descend_hard", verbose = self.GetLog()))
-        lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-1.0, 1.0])
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.0, 0.2, 0.4), term = "descend_light", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(function=sf.Triangular_MF(0.2, 0.4, 0.6), term = "descend", verbose = self.GetLog()))
+        Outputs_Y.append(sf.FuzzySet(points=[[0.4, 0.0], [0.6, 1.0]], term = "descend_hard", verbose = self.GetLog()))
+        lv_Y = sf.LinguisticVariable(Outputs_Y, concept = "Velocity in vertical(y) axis", universe_of_discourse = [-0.6, 0.6])
         self.GetController().add_linguistic_variable("output_y", lv_Y, verbose = self.GetLog())
     
     
