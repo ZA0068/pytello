@@ -201,7 +201,7 @@ class ArucoTelloController():
         plt.legend(loc="upper left")
         plt.xlabel("timestep")
         plt.ylabel("distance to the marker")
-        plt.show()
+        plt.savefig("Fuzzy controller images/positions.png")
         self.is_plottng_done = True
                 
     
