@@ -249,7 +249,7 @@ class Arucodetector:
                 return None
             return self.GetRotoTranslationVector()[0][index, 0, :]
         except:
-            return self.GetRotoTranslationVector()[0][index-1, 0, :]
+            return self.GetRotoTranslationVector()[0][0, 0, :]
     
     def GetMarkerTranslationVector(self, index) -> np.array:
         try:
@@ -257,7 +257,7 @@ class Arucodetector:
                 return None
             return self.GetRotoTranslationVector()[1][index, 0, :]
         except:
-            return self.GetRotoTranslationVector()[0][index-1, 0, :]
+            return self.GetRotoTranslationVector()[0][0, 0, :]
 
     def GetMarkerXPosition(self, index = 0) -> float:
         return self.GetMarkerTranslationVector(index)[0] 
@@ -503,9 +503,7 @@ class Arucodetector:
             for frame in self.GetContainer().decode(video=0):
                 if self.SkipFrames():
                     continue
-                self.lock.acquire()
                 self.Stream(frame)
-                self.lock.release()
                 if self.ExitStream():
                     return self.End()
    
@@ -524,7 +522,9 @@ class Arucodetector:
         return frame.time_base
 
     def DisplayImage(self, frame):
+        self.lock.acquire()
         self.SetImage(frame)
+        self.lock.release()
         self.MarkerDetection()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
