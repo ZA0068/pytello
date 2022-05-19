@@ -18,8 +18,6 @@ class ArucoTelloController():
         self.Z_vec = []
         self.Theta_vec = []
         self.pid = -1
-        self.lock = threading.Lock()
-        self.controllock = threading.Lock()
         self.is_plottng_done = False
         
     def Setup(self, set_detector=True, set_controller=True):
@@ -132,21 +130,13 @@ class ArucoTelloController():
 
     def SendControlSignalsToTheDrone(self, x, y, z, theta):
         if x is not None:
-            self.controllock.acquire()
             self.GetDetector().GetDrone().set_roll(x)
-            self.controllock.release()
         if y is not None:
-            self.controllock.acquire()
             self.GetDetector().GetDrone().set_throttle(-y)
-            self.controllock.release()
         if z is not None:
-            self.controllock.acquire()
             self.GetDetector().GetDrone().set_pitch(z)
-            self.controllock.release()
         if theta is not None:
-            self.controllock.acquire()
             self.GetDetector().GetDrone().set_yaw(-theta)
-            self.controllock.release()
 
     def GetCameraPositions(self):
         x = self.GetDetector().GetClosestMarkerX(False)

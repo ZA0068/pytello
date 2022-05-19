@@ -524,8 +524,8 @@ class Arucodetector:
     def DisplayImage(self, frame):
         self.lock.acquire()
         self.SetImage(frame)
-        self.lock.release()
         self.MarkerDetection()
+        self.lock.release()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
 
