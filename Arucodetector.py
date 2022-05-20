@@ -503,7 +503,9 @@ class Arucodetector:
             for frame in self.GetContainer().decode(video=0):
                 if self.SkipFrames():
                     continue
+                self.lock.acquire()
                 self.Stream(frame)
+                self.lock.release()
                 if self.ExitStream():
                     return self.End()
    
@@ -522,10 +524,8 @@ class Arucodetector:
         return frame.time_base
 
     def DisplayImage(self, frame):
-        self.lock.acquire()
         self.SetImage(frame)
         self.MarkerDetection()
-        self.lock.release()
         cv.imshow('Original', self.GetImage())
         self.SetWaitKey(1)
 

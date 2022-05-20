@@ -148,9 +148,9 @@ class ArucoTelloController():
     
     def GenerateControlSignals(self):
         _x, _y, _z, _theta = self.GetCameraPositions()
-        x = self.ControlLateralPosition(_x), 
-        y = self.ControlVerticalPosition(_y), 
-        z = self.ControlLongitualPosition(_z), 
+        x = self.ControlLateralPosition(_x) 
+        y = self.ControlVerticalPosition(_y)
+        z = self.ControlLongitualPosition(_z) 
         theta = self.ControlYawAngle(_theta)
         return x, y, z, theta
     
@@ -158,22 +158,26 @@ class ArucoTelloController():
         if x is not None:
             x = self.EncapsulateBoundary(x, -100, 100)
             return self.GetLateralController()[x]
+        return x
 
     
     def ControlVerticalPosition(self, y):
         if y is not None:
             y = self.EncapsulateBoundary(y, -100, 100)
             return self.GetVerticalController()[y]
+        return y
     
     def ControlLongitualPosition(self, z):
         if z is not None:
-            z = self.EncapsulateBoundary(z, 0, 60)
+            z = self.EncapsulateBoundary(z, 0, 100)
             return self.GetLongitualController()[z]
+        return z
 
     def ControlYawAngle(self, theta):
         if theta is not None:
             theta = self.EncapsulateBoundary(theta, -70, 70)
             return self.GetYawController()[theta]
+        return theta
 
     def EncapsulateBoundary(self, x, minimum: float, maximum: float):
         if x < minimum:
