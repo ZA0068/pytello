@@ -212,14 +212,22 @@ class DroneController:
         return input_variable_name
 
     def SaveControlCurvePlot(self, vector, output, input_variable_name):
-        plt.plot(vector, output)
-        plt.title(f"{input_variable_name} Control Curve")
-        plt.xlabel(f"Target's {input_variable_name} position [cm]")
-        plt.ylabel("Target's output velocity [cm/s]")
-        plt.legend([input_variable_name], loc="lower right", framealpha=1.0)
-        plt.savefig(f"Fuzzy controller images/Mamdani_fuzzy_{input_variable_name}.png")
-        plt.close()
-
+        if input_variable_name != 'theta':
+            plt.plot(vector, output)
+            plt.title(f"{input_variable_name} Control Curve")
+            plt.xlabel(f"Target's {input_variable_name} position [cm]")
+            plt.ylabel("Target's output velocity [cm/s]")
+            plt.legend([input_variable_name], loc="lower right", framealpha=1.0)
+            plt.savefig(f"Fuzzy controller images/Mamdani_fuzzy_{input_variable_name}.png")
+            plt.close()
+        else:
+            plt.plot(vector, output)
+            plt.title(f"{input_variable_name} Control Curve")
+            plt.xlabel(f"Target's {input_variable_name} angle [deg]")
+            plt.ylabel("Target's output angle velocity [deg/s]")
+            plt.legend([input_variable_name], loc="lower right", framealpha=1.0)
+            plt.savefig(f"Fuzzy controller images/Mamdani_fuzzy_{input_variable_name}.png")
+            plt.close()
     def WriteIntoTextFile(self, filename, variable_name, array):
         fileinput = open(f"{variable_name}_{filename}", "w+")
         fileinput.write(','.join(map(str,array)))
