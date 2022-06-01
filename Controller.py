@@ -212,7 +212,7 @@ class DroneController:
         return input_variable_name
 
     def SaveControlCurvePlot(self, vector, output, input_variable_name):
-        if input_variable_name != 'theta':
+        if input_variable_name != 'Theta':
             plt.plot(vector, output)
             plt.title(f"{input_variable_name} Control Curve")
             plt.xlabel(f"Target's {input_variable_name} position [cm]")
